@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-br, en">
+
+<head>
+	<title id="page-title-amz">Amazônia Legal - Avisos de Desmatamento</title>
+	<meta charset="UTF-8">
+	<meta http-equiv='cache-control' content='no-cache'>
+	<meta http-equiv='expires' content='0'>
+	<meta http-equiv='pragma' content='no-cache'>
+	<meta http-equiv="Access-Control-Allow-Origin" content="*">
+	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="Content-Language" content="pt-br, en">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Avisos de desmatamento no Cerrado - DETER/INPE">
+	<meta name="keywords" content="INPE, DETER, avisos, alertas, desmatamento, Amazônia">
+  <meta name="author" content="André Carvalho - andre.carvalho@inpe.br">
+	<!-- favicon -->
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" type="text/css" href="./libs/bootstrap/bootstrap-4.1.3.min.css" />
+	<!-- Scrollbar Custom CSS -->
+	<link rel="stylesheet" type="text/css" href="./libs/jquery/plugin/jquery.mCustomScrollbar.min.css">
+	<!-- Font-awesome -->
+	<link rel="stylesheet" type="text/css" href="./libs/fontawesome/v5.3.1/all.min.css">
+	<!-- Font Material design google -->
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" type="text/css" href="./libs/dc-2.2/dc.min.css" />
+	<link rel="stylesheet" type="text/css" href="./css/deter-amazon-aggregated.min.css" />
+	<link rel="stylesheet" type="text/css" href="./css/deter-amazon-aggregated-print.min.css" media="print" />
+	<link rel="stylesheet" type="text/css" href="./css/deter-print.min.css" media="print" />
+	<link rel="stylesheet" type="text/css" href="./css/terrabrasilis.min.css" />
+	<link rel="stylesheet" type="text/css" href="./css/deter-amazon-common.min.css" />
+</head>
+
+<body>
+
+	<div class="wrapper">
+		<!-- Sidebar Holder -->
+		<nav id="sidebar">
+
+			<a href="/">
+				<div class="sidebar-header">
+
+
+					<div class="desctxt">
+						<h5><span class="amarelo">Terra</span><span class="verde">Brasilis</span> </h5>
+						<div id="header-menu-amz">DETER (Avisos)</div>
+					</div>
+				</div>
+			</a>
+
+			<ul class="list-unstyled components">
+
+				<li class="active">
+					<!-- manter active no primeiro -->
+					<a href="#graficos" data-toggle="collapse" aria-expanded="true">
+						<span id="nv-chart-day">Gráficos - Avisos Diários</span></a>
+				</li>
+				<li>
+					<a href="/app/dashboard/alerts/legal/amazon/daily/" id="toDailyChart-amz"
+						title="Abrir o painel de avisos diários para a Amazônia Legal." aria-expanded="false">
+						<i class="material-icons">insert_chart</i><span id="nv-daily-amz">Amazônia Legal</span></a>
+				</li>
+				<li>
+					<a href="/app/dashboard/alerts/biomes/cerrado-nb/daily/" id="toDailyChart-cer-nb"
+						title="Abrir o painel avisos diários para o Bioma Cerrado." aria-expanded="false">
+						<i class="material-icons">insert_chart</i><span id="nv-daily-cer-nb">Bioma Cerrado</span></a>
+				</li>
+			</ul>
+
+			<ul class="list-unstyled components">
+
+				<li class="active">
+					<!-- manter active no primeiro -->
+					<a href="#graficos" data-toggle="collapse" aria-expanded="true">
+						<span id="nv-chart-agg">Gráficos - Agregado Mensal</span></a>
+				</li>
+
+				<li>
+					<a class="enable_menu" href="/app/dashboard/alerts/legal/amazon/aggregated/"
+						id="toAggregatedChart-amz"
+						title="Abrir o painel agregado mensal de avisos para a Amazônia Legal." aria-expanded="false">
+						<i class="material-icons">insert_chart</i><span id="nv-aggreg-amz">Amazônia Legal</span></a>
+				</li>
+				<li>
+					<a href="/app/dashboard/alerts/biomes/cerrado-nb/aggregated/" id="toAggregatedChart-cer-nb"
+						title="Abrir o painel agregado mensal de avisos para o Bioma Cerrado." aria-expanded="false">
+						<i class="material-icons">insert_chart</i><span id="nv-aggreg-cer-nb">Bioma Cerrado</span></a>
+				</li>
+			</ul>
+
+			<ul class="list-unstyled components">
+
+				<li class="active">
+					<!-- manter active no primeiro -->
+					<a href="#ferramentas" data-toggle="collapse" aria-expanded="true">
+						<span id="tools">Ferramentas</span></a>
+				</li>
+				<li>
+					<a href="#modal-container-download" id="downloadBtn" data-toggle="modal"
+						title="Baixar a tabela de avisos de desmatamento.">
+						<i class="material-icons">cloud_download</i><span id="txt3">Baixar Dados</span></a>
+				</li>
+				<li>
+					<a href="#print_information" id="prepare_print"
+						title="Imprimir esta página utilizando o recurso do navegador." data-toggle="modal">
+						<i class="material-icons">print</i><span id="txt4">Imprimir Gráficos</span></a>
+				</li>
+				<li>
+					<a href="#modal-container-cloud" id="cloud-info"
+						title="Informações sobre os dados de cobertura de nuvens." data-toggle="modal">
+						<i class="material-icons">info</i><span id="cloud-btn">Cobertura de nuvens</span></a>
+				</li>
+				<li>
+					<a href="#modal-container-general-info" id="old-biome-info"
+						title="Informações sobre os dados no antigo limite do bioma." data-toggle="modal">
+						<i class="material-icons" style="color:red;">warning</i><span id="old-biome-btn">Dados congelados</span></a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+
+	<!-- Menu superior -->
+	<div id="content">
+		<div class="boxtop">
+			<h5><span class="amarelo">Terra</span><span class="verde">Brasilis</span>
+				<span id="tituloprint-amz" class="tituloprint">	| Variação mensal de área do projeto DETER - ano</span>
+			</h5>
+		</div>
+
+		<nav class="navbar navbar-expand-lg materialnav navbar-header">
+			<button class="btn btn-material navbar-btn " type="button" data-toggle="collapse" id="sidebarCollapse"
+				data-target="#navbar" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<i class="material-icons menuicon">menu</i>
+			</button>
+			<a class="navbar-brand" href="/"><span class="amarelo">Terra</span><span
+					class="verde">Brasilis</span></a>
+			<div class="collapse navbar-collapse justify-content-between">
+				<div class="navbar-nav">
+					<a class="nav-item nav-link" href="#" id="header-panel-amz">| DETER (Avisos)</a>
+				</div>
+				<ul id="navigationBarUL" class="navbar-nav navbar-right analises">
+					<li class="nav-item dropdown">
+						<a aria-expanded="true" aria-haspopup="true" class="nav-link dropdown-toggle"
+							data-toggle="dropdown" href="#" id="navbarDropdownMenuLinkMap" role="button">
+							<i class="material-icons iconmobile">assignment </i><span id="maps-sup">Mapas</span>
+						</a>
+						<div aria-labelledby="navbarDropdownMenuLinkMap" class="dropdown-menu submenu">
+							<a class="dropdown-item" target="_blank" href="/app/map/deforestation/"><i
+									class="material-icons iconmenu">nature</i><span id="map-des">PRODES
+									(Desmatamento)</span></a>
+							<a class="dropdown-item" target="_blank" href="/app/map/alerts/"><i
+									class="material-icons iconmenu">warning</i><span id="map-war">DETER
+									(Avisos)</span></a>
+							<a class="dropdown-item" target="_blank" href="/app/map/vegetation/"><i
+								class="material-icons iconmenu">park</i><span id="map-veg">Vegetação</span></a>
+						</div>
+					</li>
+					<li class="nav-item dropdown">
+						<a aria-expanded="true" aria-haspopup="true" class="nav-link dropdown-toggle"
+							data-toggle="dropdown" href="#" id="navbarDropdownMenuLinkChart" role="button">
+							<i class="material-icons iconmobile">assignment </i><span id="analysis-sup">Gráficos</span>
+						</a>
+						<div aria-labelledby="navbarDropdownMenuLinkChart" class="dropdown-menu submenu">
+							<a class="dropdown-item" target="_blank" href="/app/dashboard/deforestation/biomes/amazon/increments">
+								<i class="material-icons iconmenu">nature</i><span id="analysis-des">PRODES	(Desmatamento)</span>
+							</a>
+							<a class="dropdown-item" href="#"><i class="material-icons iconmenu">warning</i><span	id="analysis-war">DETER (Avisos)</span></a>
+							<a class="dropdown-item" href="/app/dashboard/fires/legal/amazon/aggregated/"><i class="material-icons iconmenu">local_fire_department</i><span id="analysis-fire">Focos (Queimada)</span></a>
+						</div>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" target="_blank"
+							href="/sobre/#post-1355"><span
+								id="about-menu">Sobre</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#modal-container-contact" data-toggle="modal" id="tt-contactus-menu"
+							title="Envie sugestões ou perguntas para terrabrasilis@inpe.br.">
+							<span id="contactus-menu">Contato</span>
+						</a>
+					</li>
+					<!-- <li class="nav-item">
+						<a class="nav-link" href="#modal-container-video" id="goto_video_sup" data-toggle="modal"
+							title="Ver o vídeo introdutório sobre como utilizar este painel.">
+							<i class="material-icons iconmobile">help</i><span id="help-sup">Ajuda</span>
+						</a>
+					</li> -->
+					<li class="nav-item">
+						<a class="nav-link" rel="noreferrer" target="_blank" 
+						href="/download/manualterrabrasilis/manual_terrabrasilis_v2.pdf">
+							<i class="material-icons iconmobile">help</i><span id="help-sup">Ajuda</span>
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+							<img id="flag-pt-br" alt="Bandeira Brasil" src="img/br.svg" onclick="Lang.change('pt-br');"
+								class="bandeira" title="Alterar o idioma do painel para Português do Brasil.">
+						</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="#">
+							<img id="flag-en" alt="Flag USA" src="img/usa.svg" onclick="Lang.change('en');"
+								class="bandeira" title="Change panel language to English.">
+						</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+
+	<div class="container-fluid" id="info_container">
+		<div class="row box">
+			<div class="col-md-12">
+				<div class="text-center">
+					<div id="loading_data_info" style="display:block;"><img alt="loading gif when waiting data" src="./img/loading_map.gif" />
+					</div>
+					<div id="warning_data_info" style="display:none;">
+						<h3><span id="txt8">Problema na comunicação com o servidor.<br>Aguarde alguns minutos e
+								recarregue a página.</span></h3>
+					</div>
+					<iframe id="fileload" src=""
+						style="width:1px;height:1px;position:fixed;bottom: 0px;left: 0px;"></iframe>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid" id="panel_container" style="display:none;">
+
+
+		<div id="charts-panel">
+			<div class="row all-charts-title boxtitlepanel">
+				<div class="col-md-12">
+					<div id="title-chart-amz">Análise - Amazônia Legal</div>
+				</div>
+			</div>
+
+			<!-- Start the filter bar -->
+			<div class="row box">
+				<div class="col-md-3">
+					<div class="box-grafico text-center">
+						<div class="bt_content_generalinfo" id="deforestation-bt">
+							<div class="btn btn-primary btn-success bt_generalinfo" id="deforestation-bt-title"
+								title="Ver dados de avisos de desmatamento."
+								onclick="graph.filterByClassGroup('deforestation');">
+								<span id="txt23">Ver desmatamento</span>
+							</div>
+						</div>
+						<div class="generalinfo" id="deforestation-classes"
+							title="Área total de avisos de desmatamento.">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="box-grafico text-center">
+						<div class="bt_content_generalinfo" id="degradation-bt">
+							<div class="btn btn-primary btn-success bt_generalinfo" id="degradation-bt-title"
+								title="Ver dados de avisos de degradação."
+								onclick="graph.filterByClassGroup('degradation');">
+								<span id="txt24">Ver degradação</span>
+							</div>
+						</div>
+						<div class="generalinfo" id="degradation-classes" title="Área total de avisos de degradação.">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="box-grafico text-center">
+						<div class="bt_content_generalinfo" id="custom-bt">
+							<div class="btn btn-primary btn-success bt_generalinfo" id="custom-bt-title"
+								title="Ver todos os dados de avisos, desmatamento e degradação."
+								onclick="graph.filterByClassGroup('custom');">
+								<span id="txt25">Ver todas as classes</span>
+							</div>
+						</div>
+						<div class="generalinfo" id="custom-classes"
+							title="Área total de avisos de desmatamento e degradação.">
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3">
+					<div class="box-grafico text-center">
+						<div class="generalinfo" id="numpolygons" title="Número de avisos.">
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row box">
+
+				<div class="col-md-12">
+
+					<div class="all-charts box-grafico text-center">
+						<div id="agreg">
+							<div class="all-charts-title boxtitle">
+								<div class="focus-chart-ctrl">
+									<div class="justify-content-start ctrl-change-calendar">
+										<span id="title-chart-agreg-amz">Variação mensal de área do projeto DETER</span>
+									</div>
+									<div class="justify-content-end ctrl-change-calendar">
+										<div style="padding-right: 5px;"
+											class="btn-group btn-group-toggle btn-group-sm selecao"
+											data-toggle="buttons">
+											<label class="btn btn-outline-secondary">
+												<input type="checkbox" id="cloud-selector"
+													autocomplete="off" checked><span id="txt-cloud">Mostrar/esconder nuvem</span>
+											</label>
+										</div>
+										<!-- <div style="padding-right: 5%;"
+											class="btn-group btn-group-toggle btn-group-sm selecao"
+											data-toggle="buttons">
+											<label class="btn btn-outline-secondary active">
+												<input type="checkbox" id="defor-selector"
+													autocomplete="off" checked><span id="txt-defor">Mostrar/esconder desmatamento</span>
+											</label>
+										</div> -->
+										<div id="change-calendar"
+											class="btn-group btn-group-toggle btn-group-sm selecao"
+											data-toggle="buttons">
+											<label class="btn btn-outline-secondary">
+												<input type="radio" name="calendars" id="civil-calendar"
+													autocomplete="off"><span id="txt-civil">Ano Civil</span>
+											</label>
+											<label class="btn btn-outline-secondary active">
+												<input type="radio" name="calendars" id="prodes-calendar"
+													autocomplete="off" checked><span id="txt-prodes">Ano
+													Referência</span>
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="main-chart-bar">
+									<div class="main-chart-bar-p1">
+										<b><span id="txt8b" class="filter-info">Intervalo de tempo:</span></b><span
+											class="highlight-time filter-info" id="highlight-time"></span>
+											<a href="javascript:graph.resetFilter('agreg','agrega');">
+											<span aria-hidden="true" id="txt18" title="Limpar este filtro.">
+												<i class="material-icons md-icon-16 icongreen">delete</i>
+											</span>
+										</a>
+									</div>
+
+									<div class="updated">
+										<div class="updated-date">
+											<span id="updated">Atualizado até:</span><span id="updated_date"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div>
+							<div class="months_box" id="months_chooser">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="all-charts-title boxtitle and-border">
+				<div id="txt16">Filtros por Estados, Classes e ano</div>
+			</div>
+
+			<div class="row box">
+				<div class="col-md-4">
+					<div class="box-grafico text-center">
+						<div id="title-chart-by-state" class="all-charts-title boxtitle">Area by States</div>
+						<div id="chart-by-state">
+							<div class="keep-space">
+								<div class="reset" style="display: none;">
+									<b><span id="txt9">Filtro:</span></b> <span class="filter"></span>
+									<a href="javascript:graph.resetFilter('state');">
+										<span aria-hidden="true" id="txt19" title="Limpar este filtro.">
+											<i class="material-icons md-icon-16 icongreen">delete</i>
+										</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="box-grafico text-center">
+						<div class="all-charts-title boxtitle" style="display: flex;"><div id="title-chart-by-class">Area by Classes</div>
+							<a id="modal-718053" href="#modal-container-718053" role="button" class="btn btn-chart-info"
+								data-toggle="modal">
+								<i class="material-icons" id="display_warning"
+									title="Mais informações sobre as classes.">info</i>
+							</a>
+						</div>
+						<div id="chart-by-class">
+							<div class="keep-space">
+								<div class="reset" style="visibility: hidden;">
+									<b><span id="txt11">Filtro:</span></b> <span class="filter"></span>
+									<a href="javascript:graph.resetFilter('class');">
+										<span aria-hidden="true" id="txt21" title="Limpar este filtro.">
+											<i class="material-icons md-icon-16 icongreen">delete</i>
+										</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="all-charts box-grafico text-center">
+						<div id="title-chart-by-year" class="all-charts-title boxtitle">Area by Years</div>
+						<div id="chart-by-year">
+							<div class="keep-space">
+								<div class="reset" style="display: none;">
+									<b><span id="txt11">Filtro:</span></b> <span class="filter"></span>
+									<a href="javascript:graph.resetFilter('year');">
+										<span aria-hidden="true" id="txt21" title="Limpar este filtro.">
+											<i class="material-icons md-icon-16 icongreen">delete</i>
+										</span>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div><!-- Fim do painel de gráficos -->
+
+
+	<!-- start footer and modals -->
+	<div class="container">
+		<div class="row box">
+			<div class="col-md-12">
+				<div id="footer_print"></div>
+
+					<!-- modal window for General informations -->
+					<div class="modal fade" id="modal-container-general-info" role="dialog" aria-labelledby="general-info" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content modalinf">
+								<div class="modal-header fechar">
+									<h5 class="modal-title boxtitletable"><span id="txt2a">Informação de alteração nos dados</span></h5>
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+								</div>
+								<div class="modal-body">
+									<div class="alert alert-warning">
+										<span id="txt2b">O limite dos biomas brasileiros foram alterados <a href="https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/25798-ibge-lanca-mapa-inedito-de-biomas-e-sistema-costeiro-marinho" target="_blank">conforme publicação do IBGE</a> de 30/10/2019. Os dados de supressão e/ou degradação de vegetação publicados na plataforma TerraBrasilis foram ajustados para o novo recorte em fevereiro de 2022.
+											Acesse <a href='/app/dashboard/alerts/biomes/cerrado/aggregated/'>aqui</a> os resultados congelados até o dia 31 de Dezembro de 2021, relativos ao antigo limite.</span>
+									</div>
+								</div>
+								
+								<div class="modal-footer">
+									<div class="checkbox pull-right">
+										<label>
+											<button type="button" class="btn btngreen" data-dismiss="modal">
+												<span id="txt2c">Fechar</span>
+											</button>
+										</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- end modal -->
+
+				<!-- Start of modal information about classes -->
+				<div class="modal fade" id="modal-container-718053">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<h5 class="modal-title boxtitletable"><span id="txt22a">Informações complementares</span>
+								</h5>
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									<i class="material-icons">clear</i></button>
+							</div>
+							<div class="modal-body">
+								<div id="info_classes_en" class="alert alert-info info_classes">
+									<p>
+										<h3>DEFORESTATION CLASSES</h3>
+										<ul>
+											<li><b>Deforestation with exposed soil:</b> is the total removal of forest cover, regardless of the use for the deforested area. The deforestation process can take place by clear cutting, when the forest cover is abruptly removed in a single intervention, or it can be the result of recursive degradation events that lead to the complete collapse of the vegetation's forest structure.</li>
+											<li><b>Deforestation with vegetation:</b> these are areas where there is evidence of deforestation, but the deforested area is showing signs of vegetation cover. These are cases in which there is a time lag between the occurrence of the clear cut and its detection, caused by the cloud cover between one event and another, or the final result of recurrent degradation.</li>
+											<li><b>Mining:</b> deforestation caused by mineral extraction activity. Artisanal mining activities predominate in this class.</li>
+										</ul>
+									</p>
+									<p>
+										<h3>DEGRADATION CLASSES</h3>
+										<ul>
+											<li><b>Wildfire scar:</b> it is characterized by the presence of areas affected by fire, with or without tree vegetation.</li>
+											<li><b>Degradation:</b> it is characterized by the loss of forest canopy and consequent exposure of the soil, where vegetation is usually found in arboreal individuals in the initial and intermediate stages of succession.</li>
+										</ul>
+									</p>
+									<p>
+										<h3>WOOD EXPLORATION CLASSES</h3>
+										<ul>
+											<li><b>Selective cut type 1:</b> it is considered a conventional exploration, where individuals of commercial interest are removed without prior planning, denoted by the disordered shape of roads and road branches within the forest and with the presence of storage yards with irregular dimensions and disposed of random way.</li>
+											<li><b>Selective cut type 2:</b> it is considered an exploration based on a management plan, in which the previous planning is evidenced by the regular pattern between the roads and storage yards within the forest.</li>
+										</ul>
+									</p>
+								</div>
+								<div id="info_classes_pt-br" class="alert alert-info info_classes">
+									<p>
+										<h3>CLASSES DE DESMATAMENTO</h3>
+										<ul>
+											<li><b>Desmatamento:</b> é a remoção total da cobertura florestal, independentemente do uso destinado para a área desmatada. O processo do desmatamento pode se dar por corte raso, quando a cobertura florestal é abruptamente removida em uma única intervenção, ou pode ser o resultado de eventos de degradação recursivos que levam ao colapso completo da estrutura florestal da vegetação.</li>
+											<li><b>Desmatamento com vegetação:</b> são áreas em que há evidência de desmatamento, mas a área desmatada se encontra com sinais de uma cobertura vegetal. São casos em que há um lapso de tempo entre a ocorrência do corte raso e a sua detecção, ocasionado pela cobertura de nuvens entre um evento e outro, ou o resultado final da degradação recursiva.</li>
+											<li><b>Mineração:</b> desmatamento causado por atividade de extração mineral. Predomina nesta classe atividades de garimpo artesanal.</li>
+										</ul>
+									</p>
+									<p>
+										<h3>CLASSE DE DEGRADAÇÃO</h3>
+										<ul>
+											<li><b>Cicatriz de incêndio florestal:</b> é caracterizada pela presença de áreas atingidas por fogo, podendo ou não haver vegetação arbórea.</li>
+											<li><b>Degradação:</b> é caracterizado pela perda de dossel florestal e consequente exposição do solo, onde há vegetação geralmente indivíduos arbóreos em estágios iniciais e intermediário inicial de sucessão.</li>
+										</ul>
+									</p>
+									<p>
+										<h3>CLASSES DE EXPLORAÇÃO MADEIREIRA</h3>
+										<ul>
+											<li><b>Corte seletivo tipo 1:</b> é considerado uma exploração convencional, onde os indivíduos de interesse comercial são removidos sem planejamento prévio, denotado pela forma desordenada de estradas e ramais no interior da floresta e com a presença de pátios de estocagem com dimensões irregulares e dispostos de forma aleatória.</li>
+											<li><b>Corte seletivo tipo 2:</b> é considerado uma exploração baseada em um plano de manejo, em que percebe-se o planejamento prévio evidenciado pelo padrão regular entre as estradas e pátios de estocagem no interior da floresta.</li>
+										</ul>
+									</p>
+								</div>
+								<div class="alert alert-warning">
+									<strong><span>* </span></strong><span id="txt22b">A classe <strong>Corte
+											Seletivo</strong> refere-se ao somatório das classes Corte Seletivo
+										Geométrico e Corte Seletivo Desordenado para o ano referência 2015/2016, quando
+										estas classes ainda não eram discretizadas.</span>
+								</div>
+								<a style="color: #009688; text-decoration: underline;"
+								target="_blank" href="http://www.inpe.br/cra/projetos_pesquisas/deterb.php"
+								id="txt22c">Informações completas sobre o projeto DETER</a>
+							</div>
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<button type="button" class="btn btngreen" data-dismiss="modal">
+											<span id="txt22d">Fechar</span>
+										</button>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--End of modal information about classes-->
+
+				<!-- Modal Download-->
+				<div class="modal fade" id="modal-container-download">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<h5 class="modal-title boxtitletable"><span id="txt26">Download de dados</span></h5>
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+										class="material-icons">clear</i></button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body ">
+								<h5 class="modal-title boxtitletable"><span id="txt26a">Baixar a tabela com os avisos de
+										desmatamento em formato CSV.</span></h5>
+								<div class="dwn-tool">
+									<div class="alert alert-success alert-labeled">
+										<div class="alert-labeled-row">
+											<span class="alert-label alert-label-left alert-labelled-cell">
+												<i class="material-icons">save_alt</i>
+											</span>
+											<p class="alert-body alert-body-right alert-labelled-cell">
+												<a href="#" id="download-csv-monthly">
+													<span id="txt27" class="alerttitle">Com filtros.</span>
+												</a>
+											</p>
+										</div>
+									</div>
+
+									<div class="alert alert-success alert-labeled">
+										<div class="alert-labeled-row">
+											<span class="alert-label alert-label-left alert-labelled-cell">
+												<i class="material-icons">save_alt</i>
+											</span>
+											<p class="alert-body alert-body-right alert-labelled-cell">
+												<a href="#" id="download-csv-monthly-all">
+													<span id="txt28" class="alerttitle">Sem filtros.</span>
+												</a>
+											</p>
+										</div>
+									</div>
+
+									<h5 class="modal-title boxtitletable"><span id="txt26b">Baixar o arquivo completo
+											dos avisos de desmatamento em formato Shapefile.</span></h5>
+									<div class="alert alert-success alert-labeled">
+										<div class="alert-labeled-row">
+											<span id="download-shp-icon"
+												class="alert-label alert-label-left alert-labelled-cell">
+												<i class="material-icons">save_alt</i>
+											</span>
+											<p class="alert-body alert-body-right alert-labelled-cell">
+												<a href="#" id="download-shp">
+													<span id="txt28b" class="alerttitle">Shapefile.</span>
+												</a>
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- / modal-body -->
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<button type="button" class="btn btngreen" data-dismiss="modal">
+											<span id="txt29">Fechar</span>
+										</button>
+									</label>
+								</div>
+								<!--/ checkbox -->
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<!-- modal window with an introductory video of this panel -->
+				<div class="modal fade" id="modal-container-video">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<h5 class="modal-title boxtitletable"> <span id="txt1c">Informações de ajuda para uso do
+										painel</span></h5>
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+										class="material-icons">clear</i></button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body">
+								<div class="alert alert-success" role="alert">
+									<span id="txt1d">Veja o vídeo introdutório que mostra a interação de um usuário com
+										as ferramentas do painel.</span>
+								</div><br>
+							</div>
+
+							<!-- / modal-body -->
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<button type="button" class="btn btngreen" data-dismiss="modal">
+											<span id="txt1e">Fechar</span>
+										</button>
+									</label>
+								</div>
+								<!--/ checkbox -->
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<!-- modal window with counties filterd items -->
+				<div class="modal fade" id="modal-container-filtered" role="dialog" aria-labelledby="filtered"
+					aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									×
+								</button>
+								<h4 class="modal-title" id="filtered">
+									<span id="txt1f">Pesquisa de municípios</span>
+								</h4>
+							</div>
+							<div class="modal-body">
+								<span id="txt1g">Encontre um município.</span>
+								<div class="input-group input-group-sm" style="margin-bottom: 15px;">
+									<input autofocus id="search-county" onkeypress="utils.searchCountyByEnterKey(event)"
+										type="text" class="form-control" placeholder="Search">
+									<div class="input-group-btn">
+										<button class="btn btn-default" onclick="utils.searchCounty()"><i
+												class="material-icons" style="color:gray">search</i></button>
+									</div>
+								</div>
+								<span id="txt1h" style="display:none;">Selecione um item na lista de municípios
+									encontrados.</span>
+								<div class="counties-list">
+									<ul id="filtered-list"></ul>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<span id="txt1i">Fechar</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- modal window to display the email contact -->
+				<div class="modal fade" id="modal-container-contact">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+										class="material-icons">clear</i></button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body">
+								<div class="card">
+									<div class="card-body">
+										<h5 class="card-title"><span id="tt-contactus">Envie sugestões ou perguntas para:</span>
+										</h5>
+										<p class="card-text"><a href="http://www.inpe.br/ouvidoria/" target="_blank">http://www.inpe.br/ouvidoria/</a></p>
+									</div>
+								</div>
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<!-- modal window to display the cloud information -->
+				<div class="modal fade" id="modal-container-cloud">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<h5 class="modal-title boxtitletable"><span id="cloud-header">Sobre os dados de cobertura de nuvens</span></h5>
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="material-icons">clear</i></button>
+							</div><!-- / modal-header -->
+
+							<div class="modal-body">
+								<div class="card">
+									<div class="card-body">
+										<p class="card-text" id="cloud-main-info">
+											A estação de processamento das imagens CBERS 4/4A gera
+											sistematicamente/automaticamente, como um dos seus produtos,
+											uma imagem de cobertura de nuvens e suas sombras para cada cena
+											do sensor WFI recebida (cloud mask).
+											<br/><br/>
+											Uma rotina seleciona todas as cenas WFI/CBERS 4
+											utilizadas no DETER em determinado mês e gera um mosaico
+											mensal das áreas cobertas por nuvens.
+											<br/><br/>
+											Em seguida uma segunda rotina calcula a porcentagem de nuvem
+											em cada estado da Amazônia Legal e Cerrado e alimenta o dashboard
+											do TerraBrasilis.
+										</p>
+									</div>
+								</div>
+							</div> <!--/ modal-body -->
+							
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<button type="button" class="btn btngreen" data-dismiss="modal">
+											<span id="cloud-close">Fechar</span>
+										</button>
+									</label>
+								</div>
+							</div><!--/ modal-footer -->
+
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<!-- modal window to first notice -->
+				<div class="modal fade" id="firstNotice">
+					<div class="modal-dialog firstnotice">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+										class="material-icons">clear</i></button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body ">
+								<div id="carouselExampleIndicators" class="carousel slide sobre" data-ride="carousel">
+									<div class="carousel-inner">
+										<div class="carousel-item active">
+											<img class="d-block w-100" src="img/slider7.jpg" alt="Primeiro slide">
+											<h1 class="titulo"><span id="about-modal">Sobre </span><span
+													class="amarelo">Terra</span><span class="verde">Brasilis</span></h1>
+											<p class="descricaoslide" id="description-modal">O TerraBrasilis é uma plataforma
+												desenvolvida pelo INPE para organização, acesso e uso através de um portal web dos
+												dados geográficos produzidos pelos seus programas de monitoramento ambiental.</p>
+										</div>
+									</div>
+									<a class="carousel-control-prev" href="#carouselExampleIndicators" role="button"
+										data-slide="prev">
+										<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+										<span class="sr-only">Previous</span>
+									</a>
+									<a class="carousel-control-next" href="#carouselExampleIndicators" role="button"
+										data-slide="next">
+										<span class="carousel-control-next-icon" aria-hidden="true"></span>
+										<span class="sr-only">Next</span>
+									</a>
+								</div>
+							</div>
+							<!-- / modal-body -->
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<input id="notice" class="modal-check" name="modal-check" type="checkbox"><span
+											class="textoc" id="option-modal">Não mostrar novamente.</span>
+									</label>
+								</div>
+								<!--/ checkbox -->
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<!-- modal window to cloud notice -->
+				<div class="modal fade" id="cloudNotice">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+									<i class="material-icons">clear</i>
+								</button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body">
+								<div class="alert alert-warning" role="alert">
+									<span id="txt31">
+										A porcentagem de cobertura de nuvem para o mês de abril de 2022 foi calculada com dados referentes somente a segunda quinzena do mês devido a problemas na geração da máscara de nuvens.
+									</span>
+								</div>
+							</div>
+							<!-- / modal-body -->
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<input id="notice-cloud" class="modal-check" name="modal-check" type="checkbox">
+										<span class="textoc" id="option-modal-cloud">Não mostrar novamente.</span>
+									</label>
+								</div>
+								<!--/ checkbox -->
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+
+				<div id="display_loading"><span id="inner_display_loading"></span></div>
+
+				<!-- Modal print -->
+				<div class="modal fade" id="print_information">
+					<div class="modal-dialog">
+						<div class="modal-content modalinf">
+							<div class="modal-header fechar">
+								<h5 class="modal-title boxtitletable"> <span id="txt4p">Imprimir Gráficos</span></h5>
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+										class="material-icons">clear</i></button>
+							</div>
+							<!-- / modal-header -->
+							<div class="modal-body ">
+								<div class="alert alert-success" role="alert"> <span id="txt30">
+
+										A impressão deste documento utiliza os recursos do navegador e pode apresentar diferenças
+										entre eles.<br />
+										A impressão acomoda bem os gráficos quando as configurações são as seguintes:<br />
+										&nbsp;&nbsp;&nbsp;- A orientação do papel é do tipo paisagem;<br />
+										&nbsp;&nbsp;&nbsp;- O tamanho de papel é A4;<br />
+										&nbsp;&nbsp;&nbsp;- E margens padrão do navegador.<br />
+									</span>
+								</div>
+
+							</div>
+
+							<!-- / modal-body -->
+							<div class="modal-footer">
+								<div class="checkbox pull-right">
+									<label>
+										<button type="button" class="btn btngreen" data-dismiss="modal" id="print_page"
+											style="color: #fff;">
+											<span id="txt1ea">Fechar</span>
+										</button>
+									</label>
+								</div>
+								<!--/ checkbox -->
+							</div>
+							<!--/ modal-footer -->
+						</div>
+						<!-- / modal-content -->
+					</div>
+					<!--/ modal-dialog -->
+				</div>
+				<!-- / modal -->
+				<!--Footer-->
+				<footer class="footer">
+					<p><a href="/"> TerraBrasilis</a>&nbsp;<a rel="license"
+							href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Licença Creative Commons"
+								style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png" /></a></p>
+					<div class="version_style" id="version"></div>
+				</footer>
+				<!--/.Footer-->
+
+			</div>
+		</div>
+	</div>
+	<!-- end footer and modals -->
+
+	<!-- already minified -->
+	<script type="text/javascript" src="./libs/d3/v3/d3.min.js"></script>
+	<script type="text/javascript" src="./libs/d3/d3js.pt-br.min.js"></script>
+	<script type="text/javascript" src="./libs/crossfilter/crossfilter-1.3.12.min.js"></script>
+	<script type="text/javascript" src="./libs/dc-2.2/dc.js"></script>
+    
+	<script type="text/javascript" src="./js/svg-to-image.min.js"></script>
+	<script type="module" src="./js/deter-amazon-aggregated.js"></script>
+	<script src="./js/deter-amazon-aggregated-utils.js"></script>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-77404603-3"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag() { dataLayer.push(arguments); }
+		gtag('js', new Date());
+
+		gtag('config', 'UA-77404603-3');
+	</script>
+
+</body>
+</html>
