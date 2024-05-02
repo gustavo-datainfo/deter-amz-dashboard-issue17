@@ -1,59 +1,4 @@
-import { buildCompositeChart } from "./build-chart.js"
-
-let totalizedDeforestationArea = null
-let totalizedDegradationArea   = null
-let totalizedAlertsInfoBox     = null
-let totalizedCustomArea        = null
-let lineSeriesMonthly          = null
-let ringTotalizedByState       = null
-let rowTotalizedByClass        = null
-let barAreaByYear              = null
-
-let monthFilters  = null
-let deforestation = null
-let degradation   = null
-
-let temporalDimension0 = null
-let areaGroup0         = null
-let classDimension0    = null
-let yearDimension0     = null
-let ufDimension0       = null
-let monthDimension0    = null
-
-let temporalDimensionCloud = null
-let areaGroupCloud         = null
-let areaUfGroupCloud       = null
-let yearDimensionCloud     = null
-let yearGroupCloud         = null
-let ufDimensionCloud       = null
-let monthDimensionCloud    = null
-
-let monthDimension              = null
-let numPolDimension             = null
-let yearDimension               = null
-let yearGroup                   = null
-let ufDimension                 = null
-let classDimension              = null
-let ufGroup                     = null
-let totalDeforestationAreaGroup = null
-let totalDegradationAreaGroup   = null
-let totalAlertsGroup            = null
-
-let data      = null
-let cloudData = null
-
-let _cloudSubCharts         = null
-let _deforestationSubCharts = null
-let _deforestationStatus    = null
-let _cloudStatus            = null
-
-let ringPallet = null
-let defPallet  = null
-let cldPallet  = null
-
-let defaultHeight = null
-
-let calendarConfiguration = 'prodes'
+import { displayGraphContainer, displayWaiting, displayWarning, fakeMonths } from "./deter-amazon-aggregated-utils.js";
 
 export function loadData(url) {
     return new Promise((resolve, reject) => {
@@ -67,7 +12,8 @@ export function loadData(url) {
     });
 }
 
-export function processCloudData(data) 
+
+export function processCloudData(data, calendarConfiguration) 
 {
     if(!data || !data.totalFeatures || data.totalFeatures<=0) {
         return;
@@ -102,217 +48,193 @@ export function processCloudData(data)
             )
     }
 
-    cloudData = objectData
-
-    build()
+    return objectData
 }
 
-function setChartReferencies() 
+export function processData(data, calendarConfiguration)
 {
-    totalizedDeforestationArea = dc.numberDisplay("#deforestation-classes", "agrega");
-    totalizedDegradationArea   = dc.numberDisplay("#degradation-classes", "agrega");
-    totalizedAlertsInfoBox     = dc.numberDisplay("#numpolygons", "agrega");
-    totalizedCustomArea        = d3.select("#custom-classes");
+    if(!data || !data.totalFeatures || data.totalFeatures<=0) {
+        displayWarning(true);
+        return;
+    }
 
-    ringTotalizedByState = dc.pieChart("#chart-by-state", "filtra");
-    rowTotalizedByClass  = dc.rowChart("#chart-by-class", "filtra");
-    barAreaByYear        = dc.barChart("#chart-by-year", "filtra");
+    setUpdatedDate(data.updated_date);
+    displayGraphContainer();
+    
+    var objectData=[];
+    var numberFormat = d3.format('.2f');
+    
+    for (var j = 0, n = data.totalFeatures; j < n; ++j) {
+        var fet=data.features[j];
+        var month=+fet.properties.m;
+        var year=+fet.properties.y;
+        if(calendarConfiguration=='prodes') {
+            if(month >=1 && month<=7) {
+                year = "20"+(year-1)+"/20"+year;
+            }
+            if(month >=8 && month<=12) {
+                year = "20"+year+"/20"+(year+1);
+            }
+        }else{
+            year = "20"+year;
+        }
+        objectData.push({year:year,month:month,area:+(numberFormat(fet.properties.ar)),uf:fet.properties.uf,className:fet.properties.cl,numPol:fet.properties.np});
+    }
+
+    displayWaiting(false);
+    return objectData
 }
 
-function build() 
+export function registerDataOnCrossfilter(context)
 {
-    setChartReferencies();
-    
-    // build the monthly series chart
-    //buildSeriesChart(;
-    buildCompositeChart(window);
+    var ndx0  = crossfilter(context.deforData),
+        ndx1  = crossfilter(context.deforData),
+        cloud = crossfilter(context.cloudData)
 
-    ringTotalizedByState
-        .height(defaultHeight)
-        .innerRadius(10)
-        .externalRadiusPadding(30)
-        .dimension(ufDimension)
-        .group(ufGroup)
-        .title(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
-            v=localeBR.numberFormat(',1f')(v);
-            return Translation[Lang.language].area+": " + v + " "+Translation[Lang.language].unit;
-        })
-        .label(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(0)));
-            v=localeBR.numberFormat(',1f')(v);
-            return d.key + ":" + v + " "+Translation[Lang.language].unit;
-        })
-        .ordering(dc.pluck('key'))
-        .ordinalColors(graph.ringPallet)
-        .legend(dc.legend().x(20).y(10).itemHeight(13).gap(7).horizontal(0).legendWidth(50).itemWidth(35));
-
-    ringTotalizedByState.valueAccessor(function(d) {
-        return Math.abs(+(d.value.toFixed(2)));
+    /** register cloud data */
+    let temporalDimensionCloud = cloud.dimension((d) => {
+        var  m= fakeMonths(d.month, context.calendarConfiguration);
+        return [d.year, m];
     });
 
-    // start chart by classes
-    rowTotalizedByClass
-        .height(defaultHeight)
-        .dimension(classDimension)
-        .group(utils.snapToZero(classGroup))
-        .title(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
-            v=localeBR.numberFormat(',1f')(v);
-            var t=Translation[Lang.language].area+": " + v + " " + Translation[Lang.language].unit;
-            if(d.key==="CORTE_SELETIVO") {
-                t=Translation[Lang.language].area+": " + v + " " + Translation[Lang.language].unit + " ("+
-                ( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
-                
-            }
-            return t;
-        })
-        .label(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(1)));
-            v=localeBR.numberFormat(',1f')(v);
-            var t=utils.mappingClassNames(d.key) + ": " + v + " " + Translation[Lang.language].unit;
-            if(d.key==="CORTE_SELETIVO") {
-                t=utils.mappingClassNames(d.key) + "*: " + v + " " + Translation[Lang.language].unit + " ("+
-                ( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
-            }
-            return t;
-        })
-        .elasticX(true)
-        .ordinalColors(["#FF0000","#FFFF00","#FF00FF","#F8B700","#78CC00","#00FFFF","#56B2EA","#0000FF","#00FF00"])
-        .ordering(function(d) {
-            return -d.value;
-        })
-        .controlsUseVisibility(true);
+    let areaUfGroupCloud = temporalDimensionCloud.group().reduceSum((d) => +d.au)
 
-    rowTotalizedByClass.xAxis().tickFormat(function(d) {
-        var t=parseInt(d/1000);
-        t=(t<1?parseInt(d):t+"k");
-        return t;
-    }).ticks(5);
+    let areaGroupCloud = temporalDimensionCloud.group().reduceSum((d) => +d.a)
+
+    let yearDimensionCloud = cloud.dimension((d) => d.year)
+
+    let yearGroupCloud = yearDimensionCloud.group().reduceSum((d) => d.au)
     
-    rowTotalizedByClass
-    .filterPrinter(function(f) {
-        var l=[];
-        f.forEach(function(cl){
-            l.push(utils.mappingClassNames(cl));
-        });
-        return l.join(",");
+    let ufDimensionCloud = cloud.dimension((d) => d.uf)
+    
+    let monthDimensionCloud = cloud.dimension((d) => {
+        var m=fakeMonths(d.month, context.calendarConfiguration)
+        return m
+    })
+    /** end register cloud data */
+    
+    let monthDimension = ndx1.dimension((d) => {
+        var m = fakeMonths(d.month)
+        return m
     });
 
-    let	barColors = getOrdinalColorsToYears(graph.defPallet);
+    let temporalDimension0 = ndx0.dimension((d) => {
+        var m = fakeMonths(d.month)
+        return [d.year, m]
+    });
 
-    barAreaByYear
-        .height(defaultHeight)
-        .yAxisLabel(Translation[Lang.language].area+" ("+Translation[Lang.language].unit+")")
-        .xAxisLabel( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].barArea_x_label_prodes):(Translation[Lang.language].barArea_x_label) )
-        .dimension(yearDimension)
-        .group(utils.snapToZero(yearGroup))
-        .title(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
-            v=localeBR.numberFormat(',1f')(v);
-            return Translation[Lang.language].area+": " + v + " "+Translation[Lang.language].unit;
-        })
-        .label(function(d) {
-            var v=Math.abs(+(parseFloat(d.data.value).toFixed(0)));
-            v=localeBR.numberFormat(',1f')(v);
-            return v;
-        })
-        .elasticY(true)
-        .yAxisPadding('10%')
-        .x(d3.scale.ordinal())
-        .xUnits(dc.units.ordinal)
-        .barPadding(0.2)
-        .outerPadding(0.1)
-        .renderHorizontalGridLines(true)
-        .colorCalculator(function(d) {
-            var i=0,l=barColors.length;
-            while(i<l){
-                if(barColors[i].key==d.key){
-                    return barColors[i].color;
-                }
-                i++;
+    let areaGroup0 = temporalDimension0.group().reduceSum((d) => d.area)
+    
+    let yearDimension0 = ndx0.dimension((d) => d.year)
+    
+    let yearGroup0 = yearDimension0.group().reduceSum((d) => d.area)
+    
+    let ufDimension0 = ndx0.dimension((d) => d.uf)
+    
+    let classDimension0 = ndx0.dimension((d) => d.className)
+    
+    let monthDimension0 = ndx0.dimension((d) => {
+        var m = fakeMonths(d.month)
+        return m
+    });
+
+    let numPolDimension = ndx1.dimension((d) => d.numPol)
+    
+    let yearDimension = ndx1.dimension((d) => d.year)
+    
+    let yearGroup = yearDimension.group().reduceSum((d) => d.area)
+
+    let ufDimension = ndx1.dimension((d) => d.uf)
+
+    let ufGroup = ufDimension.group().reduceSum((d) => d.area)
+    
+    let classDimension = ndx1.dimension((d) => d.className)
+    
+    let classGroup = classDimension.group().reduceSum((d) => d.area)
+
+    let totalDeforestationAreaGroup = classDimension0.groupAll().reduce(
+        (p, v) => {
+            if(graph.deforestation.includes(v.className)) {
+                ++p.n;
+                p.tot += v.area;
             }
-        })
-        .margins({top: 20, right: 35, bottom: ( graph.calendarConfiguration=='prodes'?75:60 ), left: 55});
+            return p;
+        },
+        (p, v) => {
+            if(graph.deforestation.includes(v.className)) {
+                --p.n;
+                p.tot -= v.area;
+            }
+            return p;
+        },
+        () => {
+            return {n:0,tot:0};
+        }
+    )
 
+    let totalDegradationAreaGroup = classDimension0.groupAll().reduce(
+        (p, v) => {
+            if(graph.degradation.includes(v.className)) {
+                ++p.n
+                p.tot += v.area
+            }
+            return p
+        },
         
-    barAreaByYear
-        .on("renderlet.a",function (chart) {
-            // rotate x-axis labels
-            if(graph.calendarConfiguration=='prodes')
-                chart.selectAll('g.x text').attr('transform', 'translate(-25,18) rotate(315)');
-            else
-                chart.selectAll('g.x text').attr('transform', 'translate(-15,8) rotate(315)');
-        });
-
-    dc.chartRegistry.list("filtra").forEach(function(c,i){
-        c.on('filtered', function(chart, filter) {
-            var filters = chart.filters();
-            var commonFilterFunction = function (d) {
-                for (var i = 0; i < filters.length; i++) {
-                    var f = filters[i];
-                    if (f.isFiltered && f.isFiltered(d)) {
-                        return true;
-                    } else if (f <= d && f >= d) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
-            if(chart.anchorName()=="chart-by-year"){
-                if(!filters.length) {
-                    graph.yearDimension0.filterAll();
-                    graph.yearDimensionCloud.filterAll();
-                }else {
-                    graph.yearDimension0.filterFunction(commonFilterFunction);
-                    graph.yearDimensionCloud.filterFunction(commonFilterFunction);
-                }
+        (p, v) => {
+            if(graph.degradation.includes(v.className)) {
+                --p.n
+                p.tot -= v.area
             }
-            if(chart.anchorName()=="chart-by-state"){
-                if(!filters.length) {
-                    graph.ufDimension0.filterAll();
-                    graph.ufDimensionCloud.filterAll();
-                }else {
-                    graph.ufDimension0.filterFunction(commonFilterFunction);
-                    graph.ufDimensionCloud.filterFunction(commonFilterFunction);
-                }
-            }
-            if(chart.anchorName()=="chart-by-class"){
-                if(!filters.length) {
-                    graph.classDimension0.filterAll();
-                }else {
-                    var eqDef=true,eqDeg=true;
-                    filters.forEach(
-                        (f) => {
-                            if(!graph.deforestation.includes(f)){
-                                eqDef=false;
-                            }
-                            if(!graph.degradation.includes(f)){
-                                eqDeg=false;
-                            }
-                        }
-                    );
-                    eqDef=(eqDef)?(filters.length==graph.deforestation.length):(false);
-                    eqDeg=(eqDeg)?(filters.length==graph.degradation.length):(false);
-                    if(eqDef && !eqDeg) {
-                        utils.highlightClassFilterButtons('deforestation');
-                    }else if(!eqDef && eqDeg) {
-                        utils.highlightClassFilterButtons('degradation');
-                    }else {
-                        utils.highlightClassFilterButtons('custom');
-                    }
-                    graph.classDimension0.filterFunction(commonFilterFunction);
-                }
-            }
-            dc.redrawAll("agrega");
-            graph.displayCustomValues();
-        });
-    });
+            return p
+        },
+        () => { return {n:0,tot:0}; }
+    )
 
-    utils.renderAll();
-    // defining filter to deforestation classes by default
-    graph.filterByClassGroup('deforestation');
-    utils.attachListenersToLegend();
-    // utils.setMonthNamesFilterBar();
+    let totalAlertsGroup = numPolDimension.groupAll().reduce(
+        (p, v) => {
+            p.tot += v.numPol
+            return p
+        },
+        (p, v) => {
+            p.tot -= v.numPol
+            return p;
+        },
+        () => { return {tot:0} }
+    );
+
+
+    return {
+        "temporalDimensionCloud": temporalDimensionCloud,
+        "areaUfGroupCloud": areaUfGroupCloud,
+        "areaGroupCloud": areaGroupCloud,
+        "yearDimensionCloud": yearDimensionCloud,
+        "yearGroupCloud": yearGroupCloud,
+        "ufDimensionCloud": ufDimensionCloud,
+        "monthDimensionCloud": monthDimensionCloud,
+        "monthDimension": monthDimension,
+        "temporalDimension0": temporalDimension0,
+        "areaGroup0": areaGroup0,
+        "yearDimension0": yearDimension0,
+        "yearGroup0": yearGroup0,
+        "ufDimension0": ufDimension0,
+        "classDimension0": classDimension0,
+        "monthDimension0": monthDimension0,
+        "numPolDimension": numPolDimension,
+        "yearDimension": yearDimension,
+        "yearGroup": yearGroup,
+        "ufDimension": ufDimension,
+        "ufGroup": ufGroup,
+        "classDimension": classDimension,
+        "classGroup": classGroup,
+        "totalDeforestationAreaGroup": totalDeforestationAreaGroup,
+        "totalDegradationAreaGroup": totalDegradationAreaGroup,
+        "totalAlertsGroup": totalAlertsGroup,
+    }
+}
+
+function setUpdatedDate()
+{
+    var dt=new Date(updated_date+'T21:00:00.000Z')
+    d3.select("#updated_date").html(' '+dt.toLocaleDateString())
 }
