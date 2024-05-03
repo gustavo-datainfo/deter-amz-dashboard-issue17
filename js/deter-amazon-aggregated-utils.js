@@ -5,7 +5,7 @@ window.addEventListener('onResize', () => {
 
 export function getSeriesChartWidth() 
 {
-    return document.querySelector("#agreg").width();
+    return document.querySelector("#agreg").clientWidth
 }
 
 export function fakeMonths(d, calendarConfiguration) 

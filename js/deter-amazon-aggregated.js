@@ -68,6 +68,8 @@ window.onload = () => {
     //     Authentication.init()
     // }
 
+    Lang.init()
+
     init()
 }
 
@@ -108,6 +110,7 @@ function startLoadData()
 
             const deforData = await loadData(deforestation);
             let deforProcessed = processData(deforData, calendarConfiguration);
+
             let context = {
                 "cloudData": cloudData,
                 "deforData": deforProcessed,
@@ -117,6 +120,8 @@ function startLoadData()
             return registerDataOnCrossfilter(context);
         })
         .then(registerDataContext => {
+            registerDataContext.defaultHeight = defaultHeight
+
             return build(registerDataContext);
         })
         .catch(error => {

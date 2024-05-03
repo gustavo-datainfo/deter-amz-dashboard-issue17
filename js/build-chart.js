@@ -199,6 +199,8 @@ export function build(context)
 
 function buildCompositeChart(context)
 {
+	context.lineSeriesMonthly = dc.compositeChart("#agreg", "agrega");
+
 	let legendItemWidth=80, 
 		legendWidth=context.yearGroup0.all().length*legendItemWidth
 		legendWidth=(legendWidth<getSeriesChartWidth())?(+legendWidth.toFixed(0)):(getSeriesChartWidth());
@@ -220,7 +222,7 @@ function buildCompositeChart(context)
 		.legend(dc.legend().x(100).y(10).itemHeight(13).gap(5).horizontal(1).legendWidth(legendWidth).itemWidth(legendItemWidth))
 		.margins({top: 40, right: 65, bottom: 30, left: 65})
 		//.childOptions ({ renderDataPoints: {fillOpacity: 0.8} })
-		.compose(composeCharts());
+		.compose(composeCharts(context));
 
 		context.lineSeriesMonthly.xAxis().tickFormat(function(d) {
 			return utils.xaxis(d);
@@ -346,7 +348,7 @@ function buildSeriesChart(context)
 
   	lineSeriesRenderlet(context);
 
-	let	barColors = context.getOrdinalColorsToYears(graph.defPallet);
+	let	barColors = getOrdinalColorsToYears(context, graph.defPallet);
 	context.lineSeriesMonthly.colorAccessor(function(d) {
 		var i=0,l=barColors.length;
 		while(i<l){
@@ -412,11 +414,12 @@ function composeCharts(context)
 {
 	let charts=[];
 	// reset arrays if this method will be called more than once to prevent reinsert the charts.
-	context._cloudSubCharts=[];
+	context._cloudSubCharts = []
 	context._deforestationSubCharts=[];
 
 	// prepare deforestation charts
-	let	defColors = context.getOrdinalColorsToYears(graph.defPallet);
+	let	defColors = getOrdinalColorsToYears(context, context.defPallet)
+
 	context.yearGroup0.all().forEach(
 		(d)=>{
 			let colors=[]; defColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
@@ -427,7 +430,8 @@ function composeCharts(context)
 		});
 
 	// prepare cloud charts
-	let	cldColors = context.getOrdinalColorsToYears(graph.cldPallet);
+	let	cldColors = getOrdinalColorsToYears(context, context.cldPallet)
+
 	context.yearGroupCloud.all().forEach(
 		(d)=>{
 			let colors=[]; cldColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
@@ -559,4 +563,30 @@ function lineSeriesRenderlet(context)
 		}
 	  }
 	});
-  }
+}
+
+function getYears(context) 
+{
+	return context.yearDimension.group().all();
+}
+
+function getRangeYears(context) 
+{
+	var ys=getYears(context), l=ys.length;
+	var y=[];
+	for(var i=0;i<l;i++) {
+		y.push(ys[i].key);
+	}
+	return y;
+}
+
+function getOrdinalColorsToYears(context, colorList)
+{
+	var c=[];
+	var ys = getRangeYears(context);
+	//var cor=d3.scale.category20();
+	for(var i=0;i<ys.length;i++) {
+		c.push({key:ys[i],color:colorList[i]});//cor(i)});
+	}
+	return c;
+}
