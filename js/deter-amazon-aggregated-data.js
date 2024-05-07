@@ -1,12 +1,16 @@
-import { displayGraphContainer, displayWaiting, displayWarning, fakeMonths } from "./deter-amazon-aggregated-utils.js";
+import { 
+        displayGraphContainer, 
+        displayWaiting, 
+        displayWarning, 
+        fakeMonths, highlightClassFilterButtons } from "./deter-amazon-aggregated-utils.js";
 
 export function loadData(url) {
     return new Promise((resolve, reject) => {
         d3.json(url, (error, data) => {
         if (error != null) {
-            reject(error); // Rejeita a Promise com o erro, se houver
+            reject(error)
         } else {
-            resolve(data); // Resolve a Promise com os dados
+            resolve(data)
         }
         });
     });
@@ -87,16 +91,16 @@ export function processData(data, calendarConfiguration)
 
 export function registerDataOnCrossfilter(context)
 {
-    var ndx0  = crossfilter(context.deforData),
-        ndx1  = crossfilter(context.deforData),
-        cloud = crossfilter(context.cloudData)
+    var ndx0  = crossfilter(context.deforData)
+    var ndx1  = crossfilter(context.deforData)
+    var cloud = crossfilter(context.cloudData)
 
     /** register cloud data */
     let temporalDimensionCloud = cloud.dimension((d) => {
-        var  m= fakeMonths(d.month, context.calendarConfiguration);
+        var m= fakeMonths(d.month, context.calendarConfiguration);
         return [d.year, m];
-    });
-
+    })
+    
     let areaUfGroupCloud = temporalDimensionCloud.group().reduceSum((d) => +d.au)
 
     let areaGroupCloud = temporalDimensionCloud.group().reduceSum((d) => +d.a)
@@ -131,7 +135,7 @@ export function registerDataOnCrossfilter(context)
     
     let ufDimension0 = ndx0.dimension((d) => d.uf)
     
-    let classDimension0 = ndx0.dimension((d) => d.className)
+    let classDimension0 = ndx0.dimension((d) => {d.className})
     
     let monthDimension0 = ndx0.dimension((d) => {
         var m = fakeMonths(d.month)
@@ -154,14 +158,14 @@ export function registerDataOnCrossfilter(context)
 
     let totalDeforestationAreaGroup = classDimension0.groupAll().reduce(
         (p, v) => {
-            if(graph.deforestation.includes(v.className)) {
+            if(context.deforestation.includes(v.className)) {
                 ++p.n;
                 p.tot += v.area;
             }
             return p;
         },
         (p, v) => {
-            if(graph.deforestation.includes(v.className)) {
+            if(context.deforestation.includes(v.className)) {
                 --p.n;
                 p.tot -= v.area;
             }
@@ -174,7 +178,7 @@ export function registerDataOnCrossfilter(context)
 
     let totalDegradationAreaGroup = classDimension0.groupAll().reduce(
         (p, v) => {
-            if(graph.degradation.includes(v.className)) {
+            if(context.degradation.includes(v.className)) {
                 ++p.n
                 p.tot += v.area
             }
@@ -182,7 +186,7 @@ export function registerDataOnCrossfilter(context)
         },
         
         (p, v) => {
-            if(graph.degradation.includes(v.className)) {
+            if(context.degradation.includes(v.className)) {
                 --p.n
                 p.tot -= v.area
             }
@@ -205,31 +209,33 @@ export function registerDataOnCrossfilter(context)
 
 
     return {
-        "temporalDimensionCloud": temporalDimensionCloud,
-        "areaUfGroupCloud": areaUfGroupCloud,
-        "areaGroupCloud": areaGroupCloud,
-        "yearDimensionCloud": yearDimensionCloud,
-        "yearGroupCloud": yearGroupCloud,
-        "ufDimensionCloud": ufDimensionCloud,
-        "monthDimensionCloud": monthDimensionCloud,
-        "monthDimension": monthDimension,
-        "temporalDimension0": temporalDimension0,
-        "areaGroup0": areaGroup0,
-        "yearDimension0": yearDimension0,
-        "yearGroup0": yearGroup0,
-        "ufDimension0": ufDimension0,
-        "classDimension0": classDimension0,
-        "monthDimension0": monthDimension0,
-        "numPolDimension": numPolDimension,
-        "yearDimension": yearDimension,
-        "yearGroup": yearGroup,
-        "ufDimension": ufDimension,
-        "ufGroup": ufGroup,
-        "classDimension": classDimension,
-        "classGroup": classGroup,
+        "temporalDimensionCloud"     : temporalDimensionCloud,
+        "areaUfGroupCloud"           : areaUfGroupCloud,
+        "areaGroupCloud"             : areaGroupCloud,
+        "yearDimensionCloud"         : yearDimensionCloud,
+        "yearGroupCloud"             : yearGroupCloud,
+        "ufDimensionCloud"           : ufDimensionCloud,
+        "monthDimensionCloud"        : monthDimensionCloud,
+        "monthDimension"             : monthDimension,
+        "temporalDimension0"         : temporalDimension0,
+        "areaGroup0"                 : areaGroup0,
+        "yearDimension0"             : yearDimension0,
+        "yearGroup0"                 : yearGroup0,
+        "ufDimension0"               : ufDimension0,
+        "classDimension0"            : classDimension0,
+        "monthDimension0"            : monthDimension0,
+        "numPolDimension"            : numPolDimension,
+        "yearDimension"              : yearDimension,
+        "yearGroup"                  : yearGroup,
+        "ufDimension"                : ufDimension,
+        "ufGroup"                    : ufGroup,
+        "classDimension"             : classDimension,
+        "classGroup"                 : classGroup,
         "totalDeforestationAreaGroup": totalDeforestationAreaGroup,
-        "totalDegradationAreaGroup": totalDegradationAreaGroup,
-        "totalAlertsGroup": totalAlertsGroup,
+        "totalDegradationAreaGroup"  : totalDegradationAreaGroup,
+        "totalAlertsGroup"           : totalAlertsGroup,
+        "deforestation"              : context.deforestation,
+        "degradation"                : context.degradation
     }
 }
 
@@ -237,4 +243,27 @@ function setUpdatedDate()
 {
     var dt=new Date(updated_date+'T21:00:00.000Z')
     d3.select("#updated_date").html(' '+dt.toLocaleDateString())
+}
+
+export function filterByClassGroup(ref, context, chartReferencies) 
+{
+    highlightClassFilterButtons(ref, chartReferencies);
+
+    chartReferencies.rowTotalizedByClass.filterAll();
+
+    if(ref=='deforestation') {
+
+        context.deforestation.forEach(
+            (cl) => {
+                chartReferencies.rowTotalizedByClass.filter(cl);
+            }
+        );
+    }else if(ref=='degradation') {
+        chartReferencies.degradation.forEach(
+            (cl) => {
+                chartReferencies.rowTotalizedByClass.filter(cl);
+            }
+        );
+    }
+    dc.redrawAll("filtra");
 }

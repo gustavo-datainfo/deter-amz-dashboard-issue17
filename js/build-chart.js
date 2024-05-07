@@ -1,18 +1,66 @@
-import { getSeriesChartWidth } from "./deter-amazon-aggregated-utils.js";
+import { filterByClassGroup } from "./deter-amazon-aggregated-data.js";
+import * as utils from "./deter-amazon-aggregated-utils.js";
 
 export function build(context) 
 {
     let chartReferencies = setChartReferencies()
+	let configurations = context.configurations
+	context.chartReferencies = chartReferencies
+
+	var htmlBox="<div class='icon-left'><i class='fa fa-leaf fa-2x' aria-hidden='true'></i></div><span class='number-display'>"
+	
+	chartReferencies.totalizedDeforestationArea.formatNumber(localeBR.numberFormat(',1f'))
+
+	chartReferencies.totalizedDeforestationArea.valueAccessor(function(d) {
+			return d.n ? d.tot.toFixed(2) : 0;
+		})
+		.html({
+			one:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			some:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			none:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>0 km²</div></span>"
+		})
+		.group(context.totalDeforestationAreaGroup)
+
+	chartReferencies.totalizedDeforestationArea.valueAccessor(function(d) {
+			return d.n ? d.tot.toFixed(2) : 0;
+		})
+		.html({
+			one:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			some:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			none:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>0 km²</div></span>"
+		})
+		.group(context.totalDeforestationAreaGroup)
+
+	chartReferencies.totalizedDegradationArea.formatNumber(localeBR.numberFormat(',1f'));
+	chartReferencies.totalizedDegradationArea.valueAccessor(function(d) {
+			return d.n ? d.tot.toFixed(2) : 0;
+		})
+		.html({
+			one:htmlBox+"<span>"+Translation[Lang.language].degradation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			some:htmlBox+"<span>"+Translation[Lang.language].degradation+"</span><br/><div class='numberinf'>%number km²</div></span>",
+			none:htmlBox+"<span>"+Translation[Lang.language].degradation+"</span><br/><div class='numberinf'>0 km²</div></span>"
+		})
+		.group(context.totalDegradationAreaGroup);
+
+	chartReferencies.totalizedAlertsInfoBox.formatNumber(localeBR.numberFormat(','));
+	chartReferencies.totalizedAlertsInfoBox.valueAccessor(function(d) {
+			return d.tot ? d.tot : 0;
+		})
+		.html({
+			one:htmlBox+"<span>"+Translation[Lang.language].num_alerts+"</span><br/><div class='numberinf'>%number</div></span>",
+			some:htmlBox+"<span>"+Translation[Lang.language].num_alerts+"</span><br/><div class='numberinf'>%number</div></span>",
+			none:htmlBox+"<span>"+Translation[Lang.language].num_alerts+"</span><br/><div class='numberinf'>0</div></span>"
+		})
+		.group(context.totalAlertsGroup);
     
-    buildCompositeChart(context)
-	buildSeriesChart()
+    buildCompositeChart(context, chartReferencies)
 
     chartReferencies.ringTotalizedByState
-        .height(defaultHeight)
+        .height(configurations.defaultHeight)
         .innerRadius(10)
         .externalRadiusPadding(30)
-        .dimension(ufDimension)
-        .group(ufGroup)
+        .dimension(context.ufDimension)
+        .group(context.ufGroup)
         .title(function(d) {
             var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
             v=localeBR.numberFormat(',1f')(v);
@@ -24,7 +72,7 @@ export function build(context)
             return d.key + ":" + v + " "+Translation[Lang.language].unit;
         })
         .ordering(dc.pluck('key'))
-        .ordinalColors(graph.ringPallet)
+        .ordinalColors(configurations.ringPallet)
         .legend(dc.legend().x(20).y(10).itemHeight(13).gap(7).horizontal(0).legendWidth(50).itemWidth(35));
 
     chartReferencies.ringTotalizedByState.valueAccessor(function(d) {
@@ -32,17 +80,17 @@ export function build(context)
     });
 
     // start chart by classes
-    rowTotalizedByClass
-        .height(defaultHeight)
-        .dimension(classDimension)
-        .group(utils.snapToZero(classGroup))
+    chartReferencies.rowTotalizedByClass
+        .height(configurations.defaultHeight)
+        .dimension(context.classDimension)
+        .group(utils.snapToZero(context.classGroup))
         .title(function(d) {
             var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
             v=localeBR.numberFormat(',1f')(v);
             var t=Translation[Lang.language].area+": " + v + " " + Translation[Lang.language].unit;
             if(d.key==="CORTE_SELETIVO") {
                 t=Translation[Lang.language].area+": " + v + " " + Translation[Lang.language].unit + " ("+
-                ( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
+                ( (context.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
                 
             }
             return t;
@@ -50,10 +98,10 @@ export function build(context)
         .label(function(d) {
             var v=Math.abs(+(parseFloat(d.value).toFixed(1)));
             v=localeBR.numberFormat(',1f')(v);
-            var t=utils.mappingClassNames(d.key) + ": " + v + " " + Translation[Lang.language].unit;
+            var t=utils.mappingClassNames(context, d.key) + ": " + v + " " + Translation[Lang.language].unit;
             if(d.key==="CORTE_SELETIVO") {
-                t=utils.mappingClassNames(d.key) + "*: " + v + " " + Translation[Lang.language].unit + " ("+
-                ( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
+                t=utils.mappingClassNames(context, d.key) + "*: " + v + " " + Translation[Lang.language].unit + " ("+
+                ( (context.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
             }
             return t;
         })
@@ -64,29 +112,29 @@ export function build(context)
         })
         .controlsUseVisibility(true);
 
-    rowTotalizedByClass.xAxis().tickFormat(function(d) {
+	chartReferencies.rowTotalizedByClass.xAxis().tickFormat(function(d) {
         var t=parseInt(d/1000);
         t=(t<1?parseInt(d):t+"k");
         return t;
     }).ticks(5);
     
-    rowTotalizedByClass
-    .filterPrinter(function(f) {
-        var l=[];
-        f.forEach(function(cl){
-            l.push(utils.mappingClassNames(cl));
-        });
-        return l.join(",");
+    chartReferencies.rowTotalizedByClass
+		.filterPrinter(function(f) {
+			var l=[];
+			f.forEach(function(cl){
+				l.push(utils.mappingClassNames(context, cl));
+			});
+			return l.join(",");
     });
 
-    let	barColors = getOrdinalColorsToYears(graph.defPallet);
+    let	barColors = getOrdinalColorsToYears(context, configurations.defPallet);
 
-    barAreaByYear
-        .height(defaultHeight)
+    chartReferencies.barAreaByYear
+        .height(configurations.defaultHeight)
         .yAxisLabel(Translation[Lang.language].area+" ("+Translation[Lang.language].unit+")")
-        .xAxisLabel( (graph.calendarConfiguration=='prodes')?(Translation[Lang.language].barArea_x_label_prodes):(Translation[Lang.language].barArea_x_label) )
-        .dimension(yearDimension)
-        .group(utils.snapToZero(yearGroup))
+        .xAxisLabel( (context.calendarConfiguration=='prodes')?(Translation[Lang.language].barArea_x_label_prodes):(Translation[Lang.language].barArea_x_label) )
+        .dimension(context.yearDimension)
+        .group(utils.snapToZero(context.yearGroup))
         .title(function(d) {
             var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
             v=localeBR.numberFormat(',1f')(v);
@@ -113,13 +161,13 @@ export function build(context)
                 i++;
             }
         })
-        .margins({top: 20, right: 35, bottom: ( graph.calendarConfiguration=='prodes'?75:60 ), left: 55});
+        .margins({top: 20, right: 35, bottom: ( context.calendarConfiguration=='prodes'?75:60 ), left: 55});
 
         
-    barAreaByYear
+    chartReferencies.barAreaByYear
         .on("renderlet.a",function (chart) {
             // rotate x-axis labels
-            if(graph.calendarConfiguration=='prodes')
+            if(context.calendarConfiguration=='prodes')
                 chart.selectAll('g.x text').attr('transform', 'translate(-25,18) rotate(315)');
             else
                 chart.selectAll('g.x text').attr('transform', 'translate(-15,8) rotate(315)');
@@ -127,7 +175,8 @@ export function build(context)
 
     dc.chartRegistry.list("filtra").forEach(function(c,i){
         c.on('filtered', function(chart, filter) {
-            var filters = chart.filters();
+            var filters = chart.filters()
+
             var commonFilterFunction = function (d) {
                 for (var i = 0; i < filters.length; i++) {
                     var f = filters[i];
@@ -142,68 +191,69 @@ export function build(context)
 
             if(chart.anchorName()=="chart-by-year"){
                 if(!filters.length) {
-                    graph.yearDimension0.filterAll();
-                    graph.yearDimensionCloud.filterAll();
+                    context.yearDimension0.filterAll();
+                    context.yearDimensionCloud.filterAll();
                 }else {
-                    graph.yearDimension0.filterFunction(commonFilterFunction);
-                    graph.yearDimensionCloud.filterFunction(commonFilterFunction);
+                    context.yearDimension0.filterFunction(commonFilterFunction);
+                    context.yearDimensionCloud.filterFunction(commonFilterFunction);
                 }
             }
             if(chart.anchorName()=="chart-by-state"){
                 if(!filters.length) {
-                    graph.ufDimension0.filterAll();
-                    graph.ufDimensionCloud.filterAll();
+                    context.ufDimension0.filterAll();
+                    context.ufDimensionCloud.filterAll();
                 }else {
-                    graph.ufDimension0.filterFunction(commonFilterFunction);
-                    graph.ufDimensionCloud.filterFunction(commonFilterFunction);
+                    context.ufDimension0.filterFunction(commonFilterFunction);
+                    context.ufDimensionCloud.filterFunction(commonFilterFunction);
                 }
             }
             if(chart.anchorName()=="chart-by-class"){
                 if(!filters.length) {
-                    graph.classDimension0.filterAll();
+                    context.classDimension0.filterAll();
                 }else {
                     var eqDef=true,eqDeg=true;
                     filters.forEach(
                         (f) => {
-                            if(!graph.deforestation.includes(f)){
+                            if(!context.deforestation.includes(f)){
                                 eqDef=false;
                             }
-                            if(!graph.degradation.includes(f)){
+                            if(!context.degradation.includes(f)){
                                 eqDeg=false;
                             }
                         }
                     );
-                    eqDef=(eqDef)?(filters.length==graph.deforestation.length):(false);
-                    eqDeg=(eqDeg)?(filters.length==graph.degradation.length):(false);
+                    eqDef=(eqDef)?(filters.length==context.deforestation.length):(false);
+                    eqDeg=(eqDeg)?(filters.length==context.degradation.length):(false);
                     if(eqDef && !eqDeg) {
                         utils.highlightClassFilterButtons('deforestation');
                     }else if(!eqDef && eqDeg) {
                         utils.highlightClassFilterButtons('degradation');
                     }else {
-                        utils.highlightClassFilterButtons('custom');
+                        utils.highlightClassFilterButtons('custom', chartReferencies);
                     }
-                    graph.classDimension0.filterFunction(commonFilterFunction);
+                    context.classDimension0.filterFunction(commonFilterFunction);
                 }
             }
             dc.redrawAll("agrega");
-            graph.displayCustomValues();
+            utils.displayCustomValues(chartReferencies);
         });
     });
 
     utils.renderAll();
     // defining filter to deforestation classes by default
-    graph.filterByClassGroup('deforestation');
+    filterByClassGroup('deforestation', context, chartReferencies);
     utils.attachListenersToLegend();
     // utils.setMonthNamesFilterBar();
 }
 
-function buildCompositeChart(context)
+function buildCompositeChart(context, chartReferencies)
 {
+
 	context.lineSeriesMonthly = dc.compositeChart("#agreg", "agrega");
 
 	let legendItemWidth=80, 
 		legendWidth=context.yearGroup0.all().length*legendItemWidth
-		legendWidth=(legendWidth<getSeriesChartWidth())?(+legendWidth.toFixed(0)):(getSeriesChartWidth());
+		legendWidth=(legendWidth<utils.getSeriesChartWidth())?(+legendWidth.toFixed(0)):(utils.getSeriesChartWidth());
 
 	let fxDomain=d3.scale.linear().domain( (context.calendarConfiguration=='prodes')?([7,20]):([0,13]) );
 
@@ -224,140 +274,57 @@ function buildCompositeChart(context)
 		//.childOptions ({ renderDataPoints: {fillOpacity: 0.8} })
 		.compose(composeCharts(context));
 
-		context.lineSeriesMonthly.xAxis().tickFormat(function(d) {
-			return utils.xaxis(d);
-		});
-
-		context.lineSeriesMonthly.on('renderlet.a', (c)=>{
-			utils.moveBars(c);// split bars on bar charts
-			utils.makeMonthsChooserList();
-			utils.highlightSelectedMonths();
-		}).on('pretransition', (c) => {
-			const svg = c.select('svg');
-			// new class to define width of bars when split bars on bar charts
-			svg.selectAll("rect.bar").attr("class", "bar bar1");
-			
-			let legItens={};
-			c.selectAll('.dc-legend-item')[0].forEach((it)=>{
-				let i=it.textContent.trim();
-				if(!legItens[i]) legItens[i]=it.getAttribute('transform');
-				else {
-				let p1=legItens[i].split(",");
-				let p2=it.getAttribute('transform').split(",");
-				it.setAttribute("transform", p1[0]+","+p2[1]);
-				}
-			});
-
-			}).on("preRedraw", function (c) {
-				c.rescale();
-			}).on("preRender", function (c) {
-				c.rescale();
-			});
-
-		context.lineSeriesMonthly.rightYAxis()
-			.tickFormat(
-			(a)=>{
-				return a+"%";
-			}
-		);
-
-		context.lineSeriesMonthly.on('filtered', function(c) {
-			if(c.filter()) {
-				let fn=(d) => {return graph.monthFilters.includes(d);};
-				graph.monthDimension.filterFunction(fn);
-				graph.monthDimension0.filterFunction(fn);
-				graph.monthDimensionCloud.filterFunction(fn);
-				dc.redrawAll("filtra");
-				graph.displayCustomValues();
-			}
-		});
-}
-
-/**
- * The series chart with only alerts by months
- * 
- */
-function buildSeriesChart(context)
-{
-	context.lineSeriesMonthly = dc.seriesChart("#agreg", "agrega");
-
-	let fcDomain=d3.scale.linear().domain( (graph.calendarConfiguration=='prodes')?([8,19]):([1,12]) );
-
-	context.lineSeriesMonthly
-    	.height(context.defaultHeight-70)
-    	.chart(function(c) { return dc.lineChart(c).renderDataPoints(true).evadeDomainFilter(true); })
-    	.x(fcDomain)
-    	.renderHorizontalGridLines(true)
-    	.renderVerticalGridLines(true)
-    	.brushOn(false)
-    	.yAxisLabel(Translation[Lang.language].mainbar_y_label)
-    	.elasticY(true)
-    	.yAxisPadding('10%')
-    	.clipPadding(10)
-    	.dimension(context.temporalDimension0)
-    	.group(context.areaGroup0)
-    	.title(function(d) {
-    	  var v=Math.abs(+(parseFloat(d.value).toFixed(2)));
-    	  v=localeBR.numberFormat(',1f')(v);
-    	  return utils.xaxis(d.key[1]) + " - " + d.key[0]
-    	  + "\n"+Translation[Lang.language].area+" " + v + " "+Translation[Lang.language].unit;
-    	})
-    	.seriesAccessor(function(d) {
-     		return d.key[0];
-   		 })
-		.keyAccessor(function(d) {
-      		return d.key[1];
-   		})
-    	.valueAccessor(function(d) {
-      		if(!graph.lineSeriesMonthly.hasFilter()) {
-        		return Math.abs(+(d.value.toFixed(2)));
-      		}else{
-        		if(graph.monthFilters.indexOf(d.key[1])>=0) {
-          			return Math.abs(+(d.value.toFixed(2)));
-        		}else{
-          			return 0;
-        		}
-			}
-		})
-    	.legend(dc.legend().x(100).y(30).itemHeight(15).gap(5).horizontal(1).legendWidth(600).itemWidth(80))
-    	.margins({top: 20, right: 35, bottom: 30, left: 65});
-
-  	context.lineSeriesMonthly.yAxis().tickFormat(function(d) {
-    	//return d3.format(',d')(d);
-    	return localeBR.numberFormat(',1f')(d);
-  	});
-  	context.lineSeriesMonthly.xAxis().tickFormat(function(d) {
-    	return utils.xaxis(d);
-  	});
-
-  	context.lineSeriesMonthly.on('filtered', function(c) {
-    	if(c.filter()) {
-      		graph.monthDimension.filterFunction(
-        		(d) => {
-          			return graph.monthFilters.includes(d);
-        		}
-      		);
-      		graph.temporalDimension0.filterFunction(
-        		(d) => {
-          			return graph.monthFilters.includes(d[1]);
-        		}
-      		);
-      		dc.redrawAll("filtra");
-		}
-  	});
-
-  	lineSeriesRenderlet(context);
-
-	let	barColors = getOrdinalColorsToYears(context, graph.defPallet);
-	context.lineSeriesMonthly.colorAccessor(function(d) {
-		var i=0,l=barColors.length;
-		while(i<l){
-		if(barColors[i].key==d.key){
-			return barColors[i].color;
-		}
-		i++;
-		}
+	context.lineSeriesMonthly.xAxis().tickFormat(function(d) {
+		return utils.xaxis(d);
 	});
+
+	context.lineSeriesMonthly.on('renderlet.a', (c)=>{
+			utils.moveBars(c)// split bars on bar charts
+			utils.makeMonthsChooserList()
+			utils.highlightSelectedMonths()
+		})
+		.on('pretransition', (c) => {
+			const svg = c.select('svg')
+			// new class to define width of bars when split bars on bar charts
+			svg.selectAll("rect.bar").attr("class", "bar bar1")
+			
+			let legItens={}
+			c.selectAll('.dc-legend-item')[0].forEach((it)=>{
+				let i=it.textContent.trim()
+				if(!legItens[i]) legItens[i]=it.getAttribute('transform')
+				else {
+				let p1=legItens[i].split(",")
+				let p2=it.getAttribute('transform').split(",")
+				it.setAttribute("transform", p1[0]+","+p2[1])
+				}
+			})
+
+		})
+		.on("preRedraw", function (c) {
+				c.rescale()
+		})
+		.on("preRender", function (c) {
+			c.rescale()
+		})
+
+	context.lineSeriesMonthly.rightYAxis()
+		.tickFormat(
+		(a)=>{
+			return a+"%"
+		})
+
+	context.lineSeriesMonthly.on('filtered', function(c) {
+		if(c.filter()) {
+			let fn=(d) => {return context.monthFilters.includes(d);};
+			context.monthDimension.filterFunction(fn);
+			context.monthDimension0.filterFunction(fn);
+			context.monthDimensionCloud.filterFunction(fn);
+			dc.redrawAll("filtra");
+			utils.displayCustomValues();
+		}
+	})
+
+	lineSeriesRenderlet(context, chartReferencies)
 }
 
 function setChartReferencies() 
@@ -404,10 +371,10 @@ function makePercentGroup(dim,d)
 	)
 
 	// ordered by months
-	g.all().sort((a,b)=>{
+	grouped.all().sort((a,b)=>{
 		return a.key-b.key;
 	});
-	return g;
+	return grouped;
 }
 
 function composeCharts(context)
@@ -417,34 +384,44 @@ function composeCharts(context)
 	context._cloudSubCharts = []
 	context._deforestationSubCharts=[];
 
+	let configurations = context.configurations
+
 	// prepare deforestation charts
-	let	defColors = getOrdinalColorsToYears(context, context.defPallet)
+	let	defColors = getOrdinalColorsToYears(context, configurations.defPallet)
 
 	context.yearGroup0.all().forEach(
 		(d)=>{
 			let colors=[]; defColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
 			let deterGroupByYear = makeAreaGroup(context.monthDimension0,d.key);
 			let l=makeChartBar(context.lineSeriesMonthly,context.monthDimension0,deterGroupByYear,d.key,colors,false);
-			if(graph._deforestationStatus) charts.push(l);
+			if(context._deforestationStatus) charts.push(l);
 			context._deforestationSubCharts.push(l);// used to control the composite chart groups
 		});
 
 	// prepare cloud charts
-	let	cldColors = getOrdinalColorsToYears(context, context.cldPallet)
+	let	cldColors = getOrdinalColorsToYears(context, configurations.cldPallet)
 
 	context.yearGroupCloud.all().forEach(
 		(d)=>{
 			let colors=[]; cldColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
-			let cloudGroupByYear = makePercentGroup(context.monthDimensionCloud,d);
-			let l=makeChartLine(context.lineSeriesMonthly,context.monthDimensionCloud,cloudGroupByYear,d.key,colors,true);
-			if(graph._cloudStatus) charts.push(l);
+			let cloudGroupByYear = makePercentGroup(context.monthDimensionCloud,d)
+			let l=makeChartLine(
+				context.lineSeriesMonthly,
+				context.monthDimensionCloud,
+				cloudGroupByYear,
+				d.key,
+				colors,
+				true, 
+				context.areaUfGroupCloud
+			)
+			if(context._cloudStatus) charts.push(l);
 			context._cloudSubCharts.push(l);// used to control the composite chart groups
 		});
 	return charts;
 };
 
-let makeChartLine=(mainChart,dim,group,groupName,colors,isCloud)=>{
-			
+function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroupCloud)
+{			
 	// do not remove this space! If removed, the Y-axis for cloud percentage will be rendered incorrectly.
 	let gn=groupName+( (isCloud)?(" "):("") );
 	let l=dc.lineChart(mainChart)
@@ -453,7 +430,7 @@ let makeChartLine=(mainChart,dim,group,groupName,colors,isCloud)=>{
 	.colorCalculator(()=>{return colors[0];})
 	.renderDataPoints({radius: 5, fillOpacity: 0.8, strokeOpacity: 0.9})
 	.title((v)=>{
-		let v1=Math.abs(+(parseFloat(v.value*100/graph.areaUfGroupCloud.top(1)[0].value).toFixed(2)));
+		let v1=Math.abs(+(parseFloat(v.value*100/areaUfGroupCloud.top(1)[0].value).toFixed(2)));
 		v1=localeBR.numberFormat(',1f')(v1);
 		return utils.xaxis(v.key) + " - " + gn
 		+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
@@ -463,10 +440,10 @@ let makeChartLine=(mainChart,dim,group,groupName,colors,isCloud)=>{
 	})
 	.valueAccessor(function(dd) {
 		if(!mainChart.hasFilter()) {
-			return +((dd.value*100/graph.areaUfGroupCloud.top(1)[0].value).toFixed(2));
+			return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
 		}else{
 			if(graph.monthFilters.indexOf(dd.key)>=0) {
-				return +((dd.value*100/graph.areaUfGroupCloud.top(1)[0].value).toFixed(2));
+				return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
 			}else{
 				return 0;
 			}
@@ -515,18 +492,18 @@ function makeChartBar(mainChart,dim,group,groupName,colors,isCloud)
 	return l;
 }
 
-function lineSeriesRenderlet(context)
+function lineSeriesRenderlet(context, chartReferencies)
 {
 	context.lineSeriesMonthly.on('renderlet', function(c) {
 	  utils.attachListenersToLegend();
-	  graph.displayCustomValues();
+	  utils.displayCustomValues();
 	  dc.redrawAll("filtra");
   
 	  var years=[];
-	  if(graph.barAreaByYear.hasFilter()){
-		years=graph.barAreaByYear.filters();
+	  if(chartReferencies.barAreaByYear.hasFilter()){
+		years=chartReferencies.barAreaByYear.filters();
 	  }else{
-		graph.barAreaByYear.group().all().forEach((d)=> {years.push(d.key);});
+		chartReferencies.barAreaByYear.group().all().forEach((d)=> {years.push(d.key);});
 	  }
   
 	  if(!c.hasFilter()){
@@ -535,7 +512,7 @@ function lineSeriesRenderlet(context)
 		$('#highlight-time').html("&nbsp;" +  years.join(", ") );
 	  }else{
 		// the logic to list filtered month on filterPrinter
-		if(graph.monthDimension0){
+		if(context.monthDimension0){
 		  // sort months before to make the filter label
 		  graph.monthFilters=graph.monthFilters.sort(function(a,b){return a-b;});
 		  var fp="", allData=graph.monthDimension0.group().all();
