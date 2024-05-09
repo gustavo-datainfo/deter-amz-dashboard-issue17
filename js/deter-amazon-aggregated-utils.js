@@ -148,3 +148,77 @@ export function xaxis(d, calendarConfiguration)
         return list[d-1];
     }
 }
+
+export function moveBars(chart, context)
+{
+    let offsetBars = 18;
+    let years      = context.yearGroup0.all()
+    let mr         = context.lineSeriesMonthly.margins().right
+    let ml         = context.lineSeriesMonthly.margins().left
+    let wl         = (context.lineSeriesMonthly.width()-mr-ml)/offsetBars
+    
+    let l          = years.length, l2 = parseInt(wl/l), start=parseInt(wl-(wl/2) )*-1
+
+    chart.selectAll("g.sub").selectAll("rect.bar").forEach(
+        (sub,i)=>{
+            if(sub.length){
+                chart.selectAll("g.sub._"+i).attr("transform", "translate("+start+", 0)")
+                start=start+l2;
+            }
+        }
+    )
+}
+
+export function makeMonthsChooserList(calendarConfiguration)
+{
+    let magicNumber = 14                                                   // this number is the number of ticks used in series chart. It's equal to 12 or 14. See the chart to define.
+    let width       = parseInt(getSeriesChartWidth()/magicNumber)
+    let template    = '', extra = '<div style="width:'+width+'px"></div>'
+    let iMin        = (calendarConfiguration=='prodes')?(8):(1)
+    let iMax        = (calendarConfiguration=='prodes')?(20):(13)
+
+    for (var i=iMin; i<iMax; i++) {
+        template+='<div style="width:'+width+'px;" id="month_'+i+'" class="month_box" onclick="graph.applyMonthFilter('+i+')"></div>';
+    }
+    template = extra+template+extra
+    document.querySelector('#months_chooser').innerHTML = template
+    setMonthNamesFilterBar(calendarConfiguration)
+}
+
+export function highlightSelectedMonths(context, monthFilters)
+{
+    let iMin = (context.calendarConfiguration == 'prodes') ? (8) : (1)
+    let iMax = (context.calendarConfiguration == 'prodes') ? (20) : (13)
+
+    for (var i=iMin;i<iMax;i++) {
+        if(monthFilters.includes(i) || !monthFilters.length) {
+            d3.select('#month_'+i).style('opacity', '1')
+        }else {
+            d3.select('#month_'+i).style('opacity', '0.4')
+        }
+    }
+}
+
+export function attachListenersToLegend()
+{
+    var legendItems = document.querySelectorAll("#agreg .dc-legend-item")
+
+    console.log(legendItems)
+
+    // for(var i=0;i<legendItems.length;i++) {
+    //     document.querySelector
+
+    //     $(legendItems[i]).on('click', function (ev) {
+    //         graph.barAreaByYear.filter(ev.currentTarget.textContent.split(" ")[0]);
+    //     });
+    // }
+}
+
+function setMonthNamesFilterBar(calendarConfiguration)
+{
+    let iMin=(calendarConfiguration=='prodes')?(8):(1);
+    let iMax=(calendarConfiguration=='prodes')?(20):(13);
+    for (var i=iMin;i<iMax;i++) {
+        d3.select('#month_'+i).html((calendarConfiguration=='prodes')?(Translation[Lang.language].months_of_prodes_year[i-8]):(Translation[Lang.language].months_of_civil_year[i-1]));
+    }
+}

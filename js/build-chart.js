@@ -1,6 +1,8 @@
 import { filterByClassGroup } from "./deter-amazon-aggregated-data.js";
 import * as utils from "./deter-amazon-aggregated-utils.js";
 
+let monthFilters = []
+
 export function build(context) 
 {
     let chartReferencies = setChartReferencies()
@@ -175,7 +177,9 @@ export function build(context)
 
     dc.chartRegistry.list("filtra").forEach(function(c,i){
         c.on('filtered', function(chart, filter) {
-            var filters = chart.filters()
+            // console.log(chart.filters())
+			
+			var filters = chart.filters()
 
             var commonFilterFunction = function (d) {
                 for (var i = 0; i < filters.length; i++) {
@@ -279,9 +283,9 @@ function buildCompositeChart(context, chartReferencies)
 	});
 
 	context.lineSeriesMonthly.on('renderlet.a', (c)=>{
-			utils.moveBars(c)// split bars on bar charts
-			utils.makeMonthsChooserList()
-			utils.highlightSelectedMonths()
+			utils.moveBars(c, context)// split bars on bar charts
+			utils.makeMonthsChooserList(context.calendarConfiguration)
+			utils.highlightSelectedMonths(context, monthFilters)
 		})
 		.on('pretransition', (c) => {
 			const svg = c.select('svg')
@@ -442,7 +446,7 @@ function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroup
 		if(!mainChart.hasFilter()) {
 			return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
 		}else{
-			if(graph.monthFilters.indexOf(dd.key)>=0) {
+			if(monthFilters.indexOf(dd.key)>=0) {
 				return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
 			}else{
 				return 0;
@@ -482,7 +486,7 @@ function makeChartBar(mainChart,dim,group,groupName,colors,isCloud)
 		if(!mainChart.hasFilter()) {
 			return +(dd.value.toFixed(2));
 		}else{
-			if(graph.monthFilters.indexOf(dd.key)>=0) {
+			if(monthFilters.indexOf(dd.key)>=0) {
 				return +(dd.value.toFixed(2));
 			}else{
 				return 0;
@@ -514,9 +518,9 @@ function lineSeriesRenderlet(context, chartReferencies)
 		// the logic to list filtered month on filterPrinter
 		if(context.monthDimension0){
 		  // sort months before to make the filter label
-		  graph.monthFilters=graph.monthFilters.sort(function(a,b){return a-b;});
-		  var fp="", allData=graph.monthDimension0.group().all();
-		  graph.monthFilters.forEach(
+		  monthFilters=monthFilters.sort(function(a,b){return a-b;});
+		  var fp="", allData=context.monthDimension0.group().all();
+		  monthFilters.forEach(
 			(monthNumber) => {
 			  var ys=[];
 			  allData.some(

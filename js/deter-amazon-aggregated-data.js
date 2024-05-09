@@ -249,6 +249,8 @@ export function filterByClassGroup(ref, context, chartReferencies)
 {
     highlightClassFilterButtons(ref, chartReferencies);
 
+    console.log(chartReferencies.rowTotalizedByClass.filterAll())
+
     chartReferencies.rowTotalizedByClass.filterAll();
 
     if(ref=='deforestation') {
@@ -259,7 +261,7 @@ export function filterByClassGroup(ref, context, chartReferencies)
             }
         );
     }else if(ref=='degradation') {
-        chartReferencies.degradation.forEach(
+        context.degradation.forEach(
             (cl) => {
                 chartReferencies.rowTotalizedByClass.filter(cl);
             }
