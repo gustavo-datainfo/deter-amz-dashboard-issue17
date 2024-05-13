@@ -171,6 +171,8 @@ export function moveBars(chart, context)
 
 export function makeMonthsChooserList(calendarConfiguration)
 {
+    console.log(calendarConfiguration)
+
     let magicNumber = 14                                                   // this number is the number of ticks used in series chart. It's equal to 12 or 14. See the chart to define.
     let width       = parseInt(getSeriesChartWidth()/magicNumber)
     let template    = '', extra = '<div style="width:'+width+'px"></div>'
@@ -181,6 +183,7 @@ export function makeMonthsChooserList(calendarConfiguration)
         template+='<div style="width:'+width+'px;" id="month_'+i+'" class="month_box" onclick="graph.applyMonthFilter('+i+')"></div>';
     }
     template = extra+template+extra
+
     document.querySelector('#months_chooser').innerHTML = template
     setMonthNamesFilterBar(calendarConfiguration)
 }
@@ -203,7 +206,7 @@ export function attachListenersToLegend()
 {
     var legendItems = document.querySelectorAll("#agreg .dc-legend-item")
 
-    console.log(legendItems)
+    console.log(document.querySelectorAll(".dc-legend-item"))
 
     // for(var i=0;i<legendItems.length;i++) {
     //     document.querySelector

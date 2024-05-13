@@ -65,8 +65,9 @@ function startLoadData(configurations) {
             return registerDataOnCrossfilter(context)
         })
         .then((registerDataContext) => {
-            registerDataContext.defaultHeight = defaultHeight
             registerDataContext.configurations = configurations
+            registerDataContext.calendarConfiguration = calendarConfiguration
+            registerDataContext.defaultHeight = defaultHeight
 
             build(registerDataContext)
         })

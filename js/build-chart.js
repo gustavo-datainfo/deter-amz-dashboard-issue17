@@ -252,6 +252,7 @@ export function build(context)
 
 function buildCompositeChart(context, chartReferencies)
 {
+	let configurations = context.configurations
 
 	context.lineSeriesMonthly = dc.compositeChart("#agreg", "agrega");
 
@@ -261,8 +262,10 @@ function buildCompositeChart(context, chartReferencies)
 
 	let fxDomain=d3.scale.linear().domain( (context.calendarConfiguration=='prodes')?([7,20]):([0,13]) );
 
+	console.log(configurations.defaultHeight)
+
 	context.lineSeriesMonthly
-		.height(context.defaultHeight)
+		.height(configurations.defaultHeight)
 		.x(fxDomain)
 		.renderHorizontalGridLines(true)
 		.renderVerticalGridLines(true)
@@ -282,8 +285,11 @@ function buildCompositeChart(context, chartReferencies)
 		return utils.xaxis(d);
 	});
 
+	console.log(context.lineSeriesMonthly.height())
+
 	context.lineSeriesMonthly.on('renderlet.a', (c)=>{
 			utils.moveBars(c, context)// split bars on bar charts
+
 			utils.makeMonthsChooserList(context.calendarConfiguration)
 			utils.highlightSelectedMonths(context, monthFilters)
 		})
@@ -293,6 +299,8 @@ function buildCompositeChart(context, chartReferencies)
 			svg.selectAll("rect.bar").attr("class", "bar bar1")
 			
 			let legItens={}
+			console.log(c.selectAll('.dc-legend-item'))
+
 			c.selectAll('.dc-legend-item')[0].forEach((it)=>{
 				let i=it.textContent.trim()
 				if(!legItens[i]) legItens[i]=it.getAttribute('transform')
@@ -324,7 +332,7 @@ function buildCompositeChart(context, chartReferencies)
 			context.monthDimension0.filterFunction(fn);
 			context.monthDimensionCloud.filterFunction(fn);
 			dc.redrawAll("filtra");
-			utils.displayCustomValues();
+			utils.displayCustomValues(chartReferencies);
 		}
 	})
 
@@ -429,31 +437,31 @@ function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroup
 	// do not remove this space! If removed, the Y-axis for cloud percentage will be rendered incorrectly.
 	let gn=groupName+( (isCloud)?(" "):("") );
 	let l=dc.lineChart(mainChart)
-	.dimension(dim)
-	.group(group,gn)
-	.colorCalculator(()=>{return colors[0];})
-	.renderDataPoints({radius: 5, fillOpacity: 0.8, strokeOpacity: 0.9})
-	.title((v)=>{
-		let v1=Math.abs(+(parseFloat(v.value*100/areaUfGroupCloud.top(1)[0].value).toFixed(2)));
-		v1=localeBR.numberFormat(',1f')(v1);
-		return utils.xaxis(v.key) + " - " + gn
-		+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
-	})
-	.keyAccessor(function(k) {
-		return k.key;
-	})
-	.valueAccessor(function(dd) {
-		if(!mainChart.hasFilter()) {
-			return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
-		}else{
-			if(monthFilters.indexOf(dd.key)>=0) {
+		.dimension(dim)
+		.group(group,gn)
+		.colorCalculator(()=>{return colors[0];})
+		.renderDataPoints({radius: 5, fillOpacity: 0.8, strokeOpacity: 0.9})
+		.title((v)=>{
+			let v1=Math.abs(+(parseFloat(v.value*100/areaUfGroupCloud.top(1)[0].value).toFixed(2)));
+			v1=localeBR.numberFormat(',1f')(v1);
+			return utils.xaxis(v.key) + " - " + gn
+			+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
+		})
+		.keyAccessor(function(k) {
+			return k.key;
+		})
+		.valueAccessor(function(dd) {
+			if(!mainChart.hasFilter()) {
 				return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
 			}else{
-				return 0;
+				if(monthFilters.indexOf(dd.key)>=0) {
+					return +((dd.value*100/context.areaUfGroupCloud.top(1)[0].value).toFixed(2));
+				}else{
+					return 0;
+				}
 			}
-		}
-	})
-	.useRightYAxis(isCloud);
+		})
+		.useRightYAxis(isCloud)
 
 	// if(isCloud){
 	//   // create a Dash Dot Dot Dot
@@ -500,7 +508,7 @@ function lineSeriesRenderlet(context, chartReferencies)
 {
 	context.lineSeriesMonthly.on('renderlet', function(c) {
 	  utils.attachListenersToLegend();
-	  utils.displayCustomValues();
+	  utils.displayCustomValues(chartReferencies);
 	  dc.redrawAll("filtra");
   
 	  var years=[];
