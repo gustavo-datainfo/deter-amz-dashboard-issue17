@@ -64,9 +64,10 @@ export function mappingClassNames(context, cl)
         return cl;
     }
     var l = configurations.legendOriginal.length;
+
     for (var i = 0; i < l; i++) {
         if(configurations.legendOriginal[i]===cl) {
-            cl=configurations.legendOverlay[Lang.language][i];
+            cl = configurations.legendOverlay[Lang.language][i];
             break;
         }
     }
@@ -134,7 +135,9 @@ export function displayCustomValues(chartReferencies)
     );
 
     area = localeBR.numberFormat(',1f')(area.toFixed(2));
-    chartReferencies.totalizedCustomArea.html(htmlBox+"<span>"+Translation[Lang.language].degrad_defor+"</span><div class='numberinf'>"+area+" km²</div></span>");
+    chartReferencies.totalizedCustomArea.html(
+        htmlBox+"<span>"+Translation[Lang.language].degrad_defor+"</span><div class='numberinf'>"+area+" km²</div></span>"
+    )
 }
 
 export function xaxis(d, calendarConfiguration) 
@@ -157,7 +160,7 @@ export function moveBars(chart, context)
     let ml         = context.lineSeriesMonthly.margins().left
     let wl         = (context.lineSeriesMonthly.width()-mr-ml)/offsetBars
     
-    let l          = years.length, l2 = parseInt(wl/l), start=parseInt(wl-(wl/2) )*-1
+    let l = years.length, l2 = parseInt(wl/l), start=parseInt(wl-(wl/2) )*-1
 
     chart.selectAll("g.sub").selectAll("rect.bar").forEach(
         (sub,i)=>{
@@ -171,8 +174,6 @@ export function moveBars(chart, context)
 
 export function makeMonthsChooserList(calendarConfiguration)
 {
-    console.log(calendarConfiguration)
-
     let magicNumber = 14                                                   // this number is the number of ticks used in series chart. It's equal to 12 or 14. See the chart to define.
     let width       = parseInt(getSeriesChartWidth()/magicNumber)
     let template    = '', extra = '<div style="width:'+width+'px"></div>'
@@ -206,8 +207,6 @@ export function attachListenersToLegend()
 {
     var legendItems = document.querySelectorAll("#agreg .dc-legend-item")
 
-    console.log(document.querySelectorAll(".dc-legend-item"))
-
     // for(var i=0;i<legendItems.length;i++) {
     //     document.querySelector
 
@@ -219,9 +218,12 @@ export function attachListenersToLegend()
 
 function setMonthNamesFilterBar(calendarConfiguration)
 {
-    let iMin=(calendarConfiguration=='prodes')?(8):(1);
-    let iMax=(calendarConfiguration=='prodes')?(20):(13);
+    let iMin = (calendarConfiguration=='prodes')?(8):(1)
+    let iMax = (calendarConfiguration=='prodes')?(20):(13)
+
     for (var i=iMin;i<iMax;i++) {
-        d3.select('#month_'+i).html((calendarConfiguration=='prodes')?(Translation[Lang.language].months_of_prodes_year[i-8]):(Translation[Lang.language].months_of_civil_year[i-1]));
+        d3.select('#month_'+i).html((calendarConfiguration=='prodes') 
+            ? (Translation[Lang.language].months_of_prodes_year[i-8])
+            : (Translation[Lang.language].months_of_civil_year[i-1]))
     }
 }

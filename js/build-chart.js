@@ -262,8 +262,6 @@ function buildCompositeChart(context, chartReferencies)
 
 	let fxDomain=d3.scale.linear().domain( (context.calendarConfiguration=='prodes')?([7,20]):([0,13]) );
 
-	console.log(configurations.defaultHeight)
-
 	context.lineSeriesMonthly
 		.height(configurations.defaultHeight)
 		.x(fxDomain)
@@ -282,10 +280,8 @@ function buildCompositeChart(context, chartReferencies)
 		.compose(composeCharts(context));
 
 	context.lineSeriesMonthly.xAxis().tickFormat(function(d) {
-		return utils.xaxis(d);
+		return utils.xaxis(d, context.calendarConfiguration)
 	});
-
-	console.log(context.lineSeriesMonthly.height())
 
 	context.lineSeriesMonthly.on('renderlet.a', (c)=>{
 			utils.moveBars(c, context)// split bars on bar charts
@@ -299,7 +295,6 @@ function buildCompositeChart(context, chartReferencies)
 			svg.selectAll("rect.bar").attr("class", "bar bar1")
 			
 			let legItens={}
-			console.log(c.selectAll('.dc-legend-item'))
 
 			c.selectAll('.dc-legend-item')[0].forEach((it)=>{
 				let i=it.textContent.trim()
@@ -403,9 +398,18 @@ function composeCharts(context)
 
 	context.yearGroup0.all().forEach(
 		(d)=>{
-			let colors=[]; defColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
-			let deterGroupByYear = makeAreaGroup(context.monthDimension0,d.key);
-			let l=makeChartBar(context.lineSeriesMonthly,context.monthDimension0,deterGroupByYear,d.key,colors,false);
+			let colors=[]; defColors.some((c)=>{if(d.key==c.key) colors.push(c.color)})
+			let deterGroupByYear = makeAreaGroup(context.monthDimension0,d.key)
+
+			let l = makeChartBar(
+				context.lineSeriesMonthly,
+				context.monthDimension0, 
+				deterGroupByYear, 
+				d.key,colors, 
+				false, 
+				context.calendarConfiguration
+			)
+
 			if(context._deforestationStatus) charts.push(l);
 			context._deforestationSubCharts.push(l);// used to control the composite chart groups
 		});
@@ -415,9 +419,13 @@ function composeCharts(context)
 
 	context.yearGroupCloud.all().forEach(
 		(d)=>{
-			let colors=[]; cldColors.some((c)=>{if(d.key==c.key) colors.push(c.color)});
-			let cloudGroupByYear = makePercentGroup(context.monthDimensionCloud,d)
-			let l=makeChartLine(
+			let colors=[]
+			
+			cldColors.some((c)=>{if(d.key==c.key) colors.push(c.color)})
+			
+			let cloudGroupByYear = makePercentGroup(context.monthDimensionCloud, d)
+
+			let l = makeChartLine(
 				context.lineSeriesMonthly,
 				context.monthDimensionCloud,
 				cloudGroupByYear,
@@ -432,10 +440,11 @@ function composeCharts(context)
 	return charts;
 };
 
-function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroupCloud)
+function makeChartLine(mainChart, dim, group, groupName, colors, isCloud, areaUfGroupCloud, calendarConfiguration)
 {			
 	// do not remove this space! If removed, the Y-axis for cloud percentage will be rendered incorrectly.
-	let gn=groupName+( (isCloud)?(" "):("") );
+	let gn = groupName+( (isCloud)?(" "):("") )
+
 	let l=dc.lineChart(mainChart)
 		.dimension(dim)
 		.group(group,gn)
@@ -444,7 +453,7 @@ function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroup
 		.title((v)=>{
 			let v1=Math.abs(+(parseFloat(v.value*100/areaUfGroupCloud.top(1)[0].value).toFixed(2)));
 			v1=localeBR.numberFormat(',1f')(v1);
-			return utils.xaxis(v.key) + " - " + gn
+			return utils.xaxis(v.key, calendarConfiguration) + " - " + gn
 			+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
 		})
 		.keyAccessor(function(k) {
@@ -470,37 +479,37 @@ function makeChartLine(mainChart,dim,group,groupName,colors,isCloud, areaUfGroup
 	return l;
 }
 
-function makeChartBar(mainChart,dim,group,groupName,colors,isCloud)
+function makeChartBar(mainChart, dim, group, groupName, colors, isCloud, calendarConfiguration)
 {
 			
 	// do not remove this space! If removed, the Y-axis for cloud percentage will be rendered incorrectly.
-	let gn=groupName+( (isCloud)?(" "):("") );
-	let l=dc.barChart(mainChart)
-	//.gap(100)
-	//.centerBar(true)
-	.dimension(dim)
-	.group(group,gn)
-	.colorCalculator(()=>{return colors[0];})
-	.title((v)=>{
-		let v1=Math.abs(+(parseFloat(v.value).toFixed(2)));
-		v1=localeBR.numberFormat(',1f')(v1);
-		return utils.xaxis(v.key) + " - " + gn
-		+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
-	})
-	.keyAccessor(function(k) {
-		return k.key;
-	})
-	.valueAccessor(function(dd) {
-		if(!mainChart.hasFilter()) {
-			return +(dd.value.toFixed(2));
-		}else{
-			if(monthFilters.indexOf(dd.key)>=0) {
+	let gn = groupName+( (isCloud)?(" "):("") )
+	let l = dc.barChart(mainChart)
+		//.gap(100)
+		//.centerBar(true)
+		.dimension(dim)
+		.group(group,gn)
+		.colorCalculator(()=>{return colors[0];})
+		.title((v)=>{
+			let v1=Math.abs(+(parseFloat(v.value).toFixed(2)));
+			v1=localeBR.numberFormat(',1f')(v1);
+			return utils.xaxis(v.key, calendarConfiguration) + " - " + gn
+			+ "\n" + ((isCloud)?(Translation[Lang.language].percentage+" "+v1+"%"):(Translation[Lang.language].area+" "+v1+Translation[Lang.language].unit));
+		})
+		.keyAccessor(function(k) {
+			return k.key;
+		})
+		.valueAccessor(function(dd) {
+			if(!mainChart.hasFilter()) {
 				return +(dd.value.toFixed(2));
 			}else{
-				return 0;
+				if(monthFilters.indexOf(dd.key)>=0) {
+					return +(dd.value.toFixed(2));
+				}else{
+					return 0;
+				}
 			}
-		}
-	});
+		})
 	return l;
 }
 
