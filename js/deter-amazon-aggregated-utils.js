@@ -63,11 +63,13 @@ export function mappingClassNames(context, cl)
     if(configurations.legendOriginal===undefined) {
         return cl;
     }
-    var l = configurations.legendOriginal.length;
 
-    for (var i = 0; i < l; i++) {
+    var length = configurations.legendOriginal.length;
+
+    for (var i = 0; i < length; i++) {
         if(configurations.legendOriginal[i]===cl) {
             cl = configurations.legendOverlay[Lang.language][i];
+
             break;
         }
     }
@@ -76,6 +78,8 @@ export function mappingClassNames(context, cl)
 
 export function highlightClassFilterButtons(ref, chartReferencies)
 {
+    console.log(ref)
+
     document.getElementById(ref+"-bt").removeAttribute("class")
     document.getElementById(ref+"-bt").classList.add("disable")
     
@@ -135,9 +139,8 @@ export function displayCustomValues(chartReferencies)
     );
 
     area = localeBR.numberFormat(',1f')(area.toFixed(2));
-    chartReferencies.totalizedCustomArea.html(
-        htmlBox+"<span>"+Translation[Lang.language].degrad_defor+"</span><div class='numberinf'>"+area+" km²</div></span>"
-    )
+    
+    return htmlBox+"<span>"+Translation[Lang.language].degrad_defor+"</span><div class='numberinf'>"+area+" km²</div></span>"
 }
 
 export function xaxis(d, calendarConfiguration) 
@@ -206,6 +209,8 @@ export function highlightSelectedMonths(context, monthFilters)
 export function attachListenersToLegend()
 {
     var legendItems = document.querySelectorAll("#agreg .dc-legend-item")
+
+    console.log(legendItems)
 
     // for(var i=0;i<legendItems.length;i++) {
     //     document.querySelector

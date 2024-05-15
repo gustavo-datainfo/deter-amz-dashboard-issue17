@@ -98,12 +98,17 @@ export function build(context)
             return t;
         })
         .label(function(d) {
-            var v=Math.abs(+(parseFloat(d.value).toFixed(1)));
-            v=localeBR.numberFormat(',1f')(v);
+            var v = Math.abs(+(parseFloat(d.value).toFixed(1)));
+            
+			v=localeBR.numberFormat(',1f')(v);
+
             var t=utils.mappingClassNames(context, d.key) + ": " + v + " " + Translation[Lang.language].unit;
-            if(d.key==="CORTE_SELETIVO") {
+            
+			if(d.key==="CORTE_SELETIVO") {
                 t=utils.mappingClassNames(context, d.key) + "*: " + v + " " + Translation[Lang.language].unit + " ("+
-                ( (context.calendarConfiguration=='prodes')?(Translation[Lang.language].warning_class_prodes):(Translation[Lang.language].warning_class) )+")";
+                ( (context.calendarConfiguration=='prodes')
+					? (Translation[Lang.language].warning_class_prodes)
+					: (Translation[Lang.language].warning_class) )+")";
             }
             return t;
         })
@@ -175,8 +180,8 @@ export function build(context)
                 chart.selectAll('g.x text').attr('transform', 'translate(-15,8) rotate(315)');
         });
 
-    dc.chartRegistry.list("filtra").forEach(function(c,i){
-        c.on('filtered', function(chart, filter) {
+    dc.chartRegistry.list("filtra").forEach((c,i) => {
+        c.on('filtered', (chart, filter) => {
             // console.log(chart.filters())
 			
 			var filters = chart.filters()
@@ -239,7 +244,8 @@ export function build(context)
                 }
             }
             dc.redrawAll("agrega");
-            utils.displayCustomValues(chartReferencies);
+
+            chartReferencies.totalizedCustomArea.html(utils.displayCustomValues(chartReferencies))
         });
     });
 
@@ -327,7 +333,8 @@ function buildCompositeChart(context, chartReferencies)
 			context.monthDimension0.filterFunction(fn);
 			context.monthDimensionCloud.filterFunction(fn);
 			dc.redrawAll("filtra");
-			utils.displayCustomValues(chartReferencies);
+
+			chartReferencies.totalizedCustomArea.html(utils.displayCustomValues(chartReferencies))
 		}
 	})
 
@@ -516,8 +523,9 @@ function makeChartBar(mainChart, dim, group, groupName, colors, isCloud, calenda
 function lineSeriesRenderlet(context, chartReferencies)
 {
 	context.lineSeriesMonthly.on('renderlet', function(c) {
-	  utils.attachListenersToLegend();
-	  utils.displayCustomValues(chartReferencies);
+	  utils.attachListenersToLegend()
+
+	  chartReferencies.totalizedCustomArea.html(utils.displayCustomValues(chartReferencies))
 	  dc.redrawAll("filtra");
   
 	  var years=[];
