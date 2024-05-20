@@ -78,31 +78,38 @@ export function mappingClassNames(context, cl)
 
 export function highlightClassFilterButtons(ref, chartReferencies)
 {
-    console.log(ref)
+    var elClass = document.getElementById(ref+'-classes')
+    if (elClass) {
+        elClass.classList.remove('disable')
+    }
 
-    document.getElementById(ref+"-bt").removeAttribute("class")
     document.getElementById(ref+"-bt").classList.add("disable")
     
     if(ref=='deforestation') {
         document.getElementById("degradation-classes").classList.add("disable")
         document.getElementById("custom-classes").classList.add("disable")
 
-        document.getElementById("degradation-bt").removeAttribute("class")
-        document.getElementById("custom-bt").removeAttribute("class")
+        document.getElementById("degradation-bt").classList.remove("disable")
+        document.getElementById("custom-bt").classList.remove("disable")
+
     }else if(ref=='degradation') {
         document.getElementById("deforestation-classes").classList.add("disable")
         document.getElementById("custom-classes").classList.add("disable")
         
         document.getElementById("deforestation-bt").removeAttribute("class")
-        document.getElementById("custom-bt").removeAttribute("class")
+        
+
+        document.getElementById("deforestation-bt").classList.remove('disable')
+        document.getElementById("custom-bt").classList.remove('disable')
+
     }else if(ref=='custom') {
         displayCustomValues(chartReferencies)
 
         document.getElementById("degradation-classes").classList.add("disable")
         document.getElementById("deforestation-classes").classList.add("disable")
 
-        document.getElementById("degradation-bt").removeAttribute("class")
-        document.getElementById("deforestation-bt").removeAttribute("class")
+        document.getElementById("degradation-bt").classList.remove('disable')
+        document.getElementById("deforestation-bt").classList.remove('disable')
     }
 }
 
@@ -112,13 +119,13 @@ export function renderAll()
      * This method keeping data points at the vertices of the lines on render calls.
      */
     dc.renderAll("agrega");
-    // dc.renderAll("filtra");
-    // d3.selectAll("circle")
-    //     .attr("r",function(){return 5;})
-    //     .on("mouseout.foo", function(){
-    //         d3.select(this)
-    //         .attr("r", function(){return 5;});
-    //     });
+    dc.renderAll("filtra");
+    d3.selectAll("circle")
+        .attr("r",function(){return 5;})
+        .on("mouseout.foo", function(){
+            d3.select(this)
+            .attr("r", function(){return 5;});
+        });
 }
 
 export function displayCustomValues(chartReferencies)
@@ -209,8 +216,6 @@ export function highlightSelectedMonths(context, monthFilters)
 export function attachListenersToLegend()
 {
     var legendItems = document.querySelectorAll("#agreg .dc-legend-item")
-
-    console.log(legendItems)
 
     // for(var i=0;i<legendItems.length;i++) {
     //     document.querySelector

@@ -12,7 +12,6 @@ export function build(context)
 	var htmlBox="<div class='icon-left'><i class='fa fa-leaf fa-2x' aria-hidden='true'></i></div><span class='number-display'>"
 	
 	chartReferencies.totalizedDeforestationArea.formatNumber(localeBR.numberFormat(',1f'))
-
 	chartReferencies.totalizedDeforestationArea.valueAccessor(function(d) {
 			return d.n ? d.tot.toFixed(2) : 0;
 		})
@@ -23,17 +22,7 @@ export function build(context)
 		})
 		.group(context.totalDeforestationAreaGroup)
 
-	chartReferencies.totalizedDeforestationArea.valueAccessor(function(d) {
-			return d.n ? d.tot.toFixed(2) : 0;
-		})
-		.html({
-			one:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
-			some:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>%number km²</div></span>",
-			none:htmlBox+"<span>"+Translation[Lang.language].deforestation+"</span><br/><div class='numberinf'>0 km²</div></span>"
-		})
-		.group(context.totalDeforestationAreaGroup)
-
-	chartReferencies.totalizedDegradationArea.formatNumber(localeBR.numberFormat(',1f'));
+	chartReferencies.totalizedDegradationArea.formatNumber(localeBR.numberFormat(',1f'))
 	chartReferencies.totalizedDegradationArea.valueAccessor(function(d) {
 			return d.n ? d.tot.toFixed(2) : 0;
 		})
@@ -42,7 +31,7 @@ export function build(context)
 			some:htmlBox+"<span>"+Translation[Lang.language].degradation+"</span><br/><div class='numberinf'>%number km²</div></span>",
 			none:htmlBox+"<span>"+Translation[Lang.language].degradation+"</span><br/><div class='numberinf'>0 km²</div></span>"
 		})
-		.group(context.totalDegradationAreaGroup);
+		.group(context.totalDegradationAreaGroup)
 
 	chartReferencies.totalizedAlertsInfoBox.formatNumber(localeBR.numberFormat(','));
 	chartReferencies.totalizedAlertsInfoBox.valueAccessor(function(d) {
@@ -536,9 +525,11 @@ function lineSeriesRenderlet(context, chartReferencies)
 	  }
   
 	  if(!c.hasFilter()){
-		$('#txt18').css('display','none');// hide filter reset buttom
-		$('#txt8b').html(Translation[Lang.language].allTime);
-		$('#highlight-time').html("&nbsp;" +  years.join(", ") );
+		document.getElementById('txt18').style.display = 'none'
+		document.getElementById('txt8b').innerHTML = Translation[Lang.language].allTime
+
+		document.getElementById('highlight-time').innerHTML = "&nbsp;" +  years.join(", ")
+
 	  }else{
 		// the logic to list filtered month on filterPrinter
 		if(context.monthDimension0){

@@ -239,7 +239,7 @@ export function registerDataOnCrossfilter(context)
     }
 }
 
-function setUpdatedDate()
+function setUpdatedDate(updated_date)
 {
     var dt=new Date(updated_date+'T21:00:00.000Z')
     d3.select("#updated_date").html(' '+dt.toLocaleDateString())
