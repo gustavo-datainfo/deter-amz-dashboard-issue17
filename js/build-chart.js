@@ -123,7 +123,7 @@ export function build(context)
 			return l.join(",");
     });
 
-    let	barColors = getOrdinalColorsToYears(context, configurations.defPallet);
+    let	barColors = getOrdinalColorsToYears(context, configurations.defPallet)
 
     chartReferencies.barAreaByYear
         .height(configurations.defaultHeight)
@@ -160,14 +160,14 @@ export function build(context)
         .margins({top: 20, right: 35, bottom: ( context.calendarConfiguration=='prodes'?75:60 ), left: 55});
 
         
-    chartReferencies.barAreaByYear
-        .on("renderlet.a",function (chart) {
+    chartReferencies.barAreaByYear.on("renderlet.a", function (chart) {
             // rotate x-axis labels
             if(context.calendarConfiguration=='prodes')
                 chart.selectAll('g.x text').attr('transform', 'translate(-25,18) rotate(315)');
             else
                 chart.selectAll('g.x text').attr('transform', 'translate(-15,8) rotate(315)');
-        });
+        }
+	);
 
     dc.chartRegistry.list("filtra").forEach((c,i) => {
         c.on('filtered', (chart, filter) => {
@@ -238,10 +238,10 @@ export function build(context)
         });
     });
 
-    utils.renderAll();
+    utils.renderAll()
     // defining filter to deforestation classes by default
-    filterByClassGroup('deforestation', context, chartReferencies);
-    utils.attachListenersToLegend();
+    filterByClassGroup('deforestation', context, chartReferencies)
+    utils.attachListenersToLegend()
     // utils.setMonthNamesFilterBar();
 }
 
@@ -408,7 +408,7 @@ function composeCharts(context)
 
 			if(context._deforestationStatus) charts.push(l);
 			context._deforestationSubCharts.push(l);// used to control the composite chart groups
-		});
+		})
 
 	// prepare cloud charts
 	let	cldColors = getOrdinalColorsToYears(context, configurations.cldPallet)
@@ -533,30 +533,32 @@ function lineSeriesRenderlet(context, chartReferencies)
 	  }else{
 		// the logic to list filtered month on filterPrinter
 		if(context.monthDimension0){
-		  // sort months before to make the filter label
-		  monthFilters=monthFilters.sort(function(a,b){return a-b;});
-		  var fp="", allData=context.monthDimension0.group().all();
-		  monthFilters.forEach(
+			// sort months before to make the filter label
+			monthFilters=monthFilters.sort(function(a,b){return a-b;});
+			var fp="", allData=context.monthDimension0.group().all();
+			monthFilters.forEach(
 			(monthNumber) => {
-			  var ys=[];
-			  allData.some(
+				var ys=[];
+				allData.some(
 				(d)=> {
-				  years.forEach(
+					years.forEach(
 					(year) => {
-					  if(d.key==monthNumber) {
+						if(d.key==monthNumber) {
 						if(!ys.includes(year)) ys.push(year);
 						return true;
-					  }
+						}
 					}
-				  );
+					);
 				}
-			  );
-			  if(ys.length) fp+=(fp==''?'':', ')+utils.monthYearList(monthNumber,utils.nameMonthsById(monthNumber),ys);
+				);
+				if(ys.length) fp+=(fp==''?'':', ')+utils.monthYearList(monthNumber,utils.nameMonthsById(monthNumber),ys);
 			}
-		  );
-		  $('#txt18').css('display','');// display filter reset buttom
-		  $('#txt8b').html(Translation[Lang.language].someMonths);
-		  $('#highlight-time').html("&nbsp;" +  fp );
+			);
+			
+			document.getElementById('txt18').style.display = '';
+			document.getElementById('txt8b').innerHTML = Translation[Lang.language].someMonths;
+			document.getElementById('highlight-time').innerHTML = "&nbsp;" + fp;
+
 		}
 	  }
 	});

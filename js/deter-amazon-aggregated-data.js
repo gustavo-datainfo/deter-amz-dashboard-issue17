@@ -249,7 +249,6 @@ export function filterByClassGroup(ref, context, chartReferencies)
 {
     highlightClassFilterButtons(ref, chartReferencies);
 
-    console.log(chartReferencies.rowTotalizedByClass.filterAll())
 
     chartReferencies.rowTotalizedByClass.filterAll();
 

@@ -17,6 +17,8 @@ window.onload = () => {
 
 function init() 
 {
+    Lang.apply()
+
     loadConfigurations()
         .then(config => {
             startLoadData(config)
@@ -27,18 +29,18 @@ function loadConfigurations()
 {
     return new Promise((resolve, reject) => {
         d3.json("config/deter-amazon-aggregated.json", (error, data) => {
-        if (error != null) {
-            reject(error)
-        } else {
-            resolve({
-                "ringPallet"     : data.ringPallet ? data.ringPallet : ringPallet,
-                "defPallet"      : data.defPallet ? data.defPallet : defPallet,
-                "cldPallet"      : data.cldPallet ? data.cldPallet : cldPallet,
-                "defaultHeight"  : data.defaultHeight ? data.defaultHeight : defaultHeight,
-                "legendOriginal" : data.legendOriginal ? data.legendOriginal : void 0,
-                "legendOverlay"  : data.legendOverlay ? data.legendOverlay : void 0
-            })
-        }
+            if (error != null) {
+                reject(error)
+            } else {
+                resolve({
+                    "ringPallet"     : data.ringPallet ? data.ringPallet : ringPallet,
+                    "defPallet"      : data.defPallet ? data.defPallet : defPallet,
+                    "cldPallet"      : data.cldPallet ? data.cldPallet : cldPallet,
+                    "defaultHeight"  : data.defaultHeight ? data.defaultHeight : defaultHeight,
+                    "legendOriginal" : data.legendOriginal ? data.legendOriginal : void 0,
+                    "legendOverlay"  : data.legendOverlay ? data.legendOverlay : void 0
+                })
+            }
         })
     })
 }
@@ -74,4 +76,25 @@ function startLoadData(configurations) {
         .catch((error) => {
             console.error("Erro ao carregar os dados:", error)
         });
+}
+
+function resetFilter(who,group) 
+{
+    var g=(typeof group === 'undefined')?("filtra"):(group);
+    if(who=='state'){
+        graph.ringTotalizedByState.filterAll();
+    }else if(who=='year'){
+        graph.barAreaByYear.filterAll();
+    }else if(who=='class'){
+        graph.rowTotalizedByClass.filterAll();
+        graph.filterByClassGroup('custom');
+    }else if(who=='agreg'){
+        graph.lineSeriesMonthly.filterAll();
+        graph.monthDimension.filterAll();
+        graph.monthDimension0.filterAll();
+        graph.monthFilters=[];
+        utils.highlightSelectedMonths();
+        dc.redrawAll("filtra");
+    }
+    dc.redrawAll(g);
 }
